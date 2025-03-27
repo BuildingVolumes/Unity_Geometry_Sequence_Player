@@ -20,6 +20,6 @@ anything in our [Unity Forums thread](https://forum.unity.com/threads/released-g
 
 #### 🪲 Bugs
 
-If you encounter any bugs, eorrs or issues, please report them [here in the main Github repository](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/issues) 🪲
+If you encounter any bugs, eorrs or issues, please report them [here in the main Github repository](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues) 🪲
 
 >💡 Do a quick search first, if your issue has already been reported. If not, please open a new one, and we'll get back to you!

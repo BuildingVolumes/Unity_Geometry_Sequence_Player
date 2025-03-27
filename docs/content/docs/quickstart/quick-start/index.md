@@ -19,11 +19,11 @@ toc: true
 
 2. In the **Package Manager window**, go into the upper left corner and click on the **"+" Button –> Add package from Git URL.**
 
-3. Copy and paste the following URL into the field and click **Add**: `https://github.com/BuildingVolumes/Geometry_Sequence_Streaming_Package.git`
+3. Copy and paste the following URL into the field and click **Add**: `https://github.com/BuildingVolumes/Geometry_Sequence_Player_Package.git`
 
 4. To install the samples, select the Geometry Streaming Sequence package and open the **Sample foldout**. Then click on **Import**.
 
-[More info](/Unity_Geometry_Sequence_Streaming/docs/tutorials/unity-package-installation/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/unity-package-installation/)
 
 ## Play your first sequence
 
@@ -33,4 +33,4 @@ toc: true
 
 ![A spinning box](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDMwZTkyOTEzZjRiM2M5ZWI4ZTc1NmEyNjIzZjg2OTU4MzRlZGQ0NCZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/cxJpQmE5QeReOgx16L/giphy.gif)
 
-[More info](/Unity_Geometry_Sequence_Streaming/docs/tutorials/basic-playback/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/basic-playback/)

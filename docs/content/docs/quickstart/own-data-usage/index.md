@@ -13,7 +13,7 @@ weight: 30
 toc: true
 ---
 
-> 👉🏻 This is just a quick summary of the conversion process, more details can be [found here](/Unity_Geometry_Sequence_Streaming/docs/tutorials/preparing-your-sequences/)
+> 👉🏻 This is just a quick summary of the conversion process, more details can be [found here](/Unity_Geometry_Sequence_Player/docs/tutorials/preparing-your-sequences/)
 
 ## Conversion
 
@@ -21,7 +21,7 @@ toc: true
 
 2. Almost all commonly used pointcloud/mesh (.fbx .obj .gltf .ply .xzy) and image (.dds .jpeg .png .tga) formats can be used as source material. Ensure that your sequence is in such a format
 
-3. Download the latest converter [binaries for windows here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/releases) (The file named Geometry_Sequence_Converter_Win64.zip)
+3. Download the latest converter [binaries for windows here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases) (The file named Geometry_Sequence_Converter_Win64.zip)
 
 4. Unzip, open the converter, and set the **input folder** to the folder containing your sequence. The **output folder** should be set to a different (empty) folder. Click on **Start Conversion**.
 
