@@ -1,8 +1,8 @@
-![gss_logo](https://github.com/user-attachments/assets/5a97085f-e010-49f0-99d5-1db37ca2a897)
+![gss_logo](https://github.com/user-attachments/assets/d368380c-f32a-46a7-bba1-fd878da432ae)
 
 ---
 
-### A package for Unity to stream large pointcloud and (textured) mesh sequences from disk
+### A Unity package for playing back large pointcloud and (textured) mesh sequences from disk
 
 https://github.com/Elite-Volumetric-Capture-Sqad/Unity_Geometry_Sequence_Streaming/assets/39704202/c3e611dc-285f-4e22-b411-04c9e2cb2321
 
