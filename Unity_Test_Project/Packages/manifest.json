@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.buildingvolumes.geometry_sequence_streaming": "file:C:/Dev/Volcapture/Unity_Geometry_Sequence_Streaming/Geometry_Sequence_Streaming_Package",
+    "com.buildingvolumes.geometry_sequence_player": "file:C:/Dev/Volcapture/Unity_Geometry_Sequence_Player/Geometry_Sequence_Player_Package",
     "com.unity.ai.navigation": "2.0.5",
     "com.unity.analytics": "3.8.1",
     "com.unity.collab-proxy": "2.6.0",
