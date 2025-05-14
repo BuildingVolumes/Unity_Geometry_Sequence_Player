@@ -13,11 +13,11 @@ weight: 150
 toc: true
 ---
 
-> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [03_API_Example](/Unity_Geometry_Sequence_Streaming/docs/tutorials/unity-package-installation/#importing-the-samples-optional)
-
 ## Intro
 
 Besides playback from the timeline and the editor controls, this package also features a API, so that you can control playback from your own scripts. This is for example useful, if you want to let the user control playback via UI buttons, or you want to interactively integrate the player into your experience!
+
+> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [04_API_Example](/docs/tutorials/installation/#importing-the-samples)
 
 ## Setup
 
@@ -26,7 +26,7 @@ To use the Scripting API, you need to have a gameobject in the scene that has th
 First, include the BuildingVolumes namespace inside your script with:
 
 ```C#
-using BuildingVolumes.Streaming;
+using BuildingVolumes.Player;
 ```
 
 In your script, you then have to get the **Geometry Sequence Player** component, ideally directly in the start function:
@@ -39,11 +39,11 @@ void Start()
     }
 ```
 
-Then, we recommend that you disable **Play at Start** and **Loop Playback** either directly through the editor inside of the **Geometry Sequence Player** component:
+Then, we recommend that you disable **Play at Start** and **Loop Playback** either directly through in the **Geometry Sequence Player** component:
 
 ![Unchecking the auto start and loop options inside of the editor](api_disable_startloop.png)
 
-or via script inside of the start function. This ensures that you have full control over when and how you want to play your sequence.
+or via script inside of the start function:
 
 ```C#
 void Start()
@@ -57,6 +57,7 @@ void Start()
     }
 ```
 
+This ensures that you have full control over when and how you want to play your sequence.
 You can the load your sequence with the **OpenSequence()** function at any point:
 
 ```C#
@@ -64,11 +65,14 @@ You can the load your sequence with the **OpenSequence()** function at any point
 player.OpenSequence("C:\MySequences\MyOwnSequence\", GeometrySequencePlayer.PathType.AbsolutePath, 30, true);
 ```
 
-👉 For an overview about the API Features, take a look at the [Scripting Reference](/Unity_Geometry_Sequence_Streaming/docs/tutorials/scripting-api/#scripting-reference)
+👉 For an overview about the API Features, take a look at the [Scripting Reference](/docs/tutorials/scripting-api/#scripting-reference)
 
 ## Events
 
 Events can be used to react to certain actions of the Playback, such as when Playback has started, stopped, or buffering has finished.
+
+### Receive events
+
 To receive an event, you need to define a function in your code, which can receive a `GeometrySequencePlayer` object and a `GeometrySequencePlayer.GSPlayerEvents` enum. Use the `GSPlayerEvents` enum to receive the information which event has been triggered, and the player object to determine which player has fired the event.
 
 ```C#
@@ -89,12 +93,14 @@ public void PlaybackEventListener(GeometrySequencePlayer player, GeometrySequenc
 
 To actually receive the events, you need to subscribe to them. You can either do this by adding a reference to your function inside the GeometrySequencePlayer **in the editor**, or subscribing to a Players events **inside your script (recommended)**.
 
-**Subscribe via Editor:**
+### Subscribe to event in Editor
+
 To subscribe to events via the Editor, go to your GeometrySequencePlayer into the events foldout, click on **+** and drag and drop your script into the event subscription box. Now, select your function.
 
 ![Adding event subscription inside the editor](editor_playback_add_event.png)
 
-**Subscribe via Code:**
+### Subscribe to event in Code
+
 To subscribe to an event via code, get a reference to the player you want to subscribe to, and then add a Listener to the event. Don't forget to unsubscribe when the script gets destroyed/disabled!
 
 ```C#
@@ -159,6 +165,11 @@ Parameters:
 
 - `path`: The relative or absolute path to the folder containing the directory. Should end with a slash
 - `relativeTo`: Is the path relative to the [Data path](https://docs.unity3d.com/ScriptReference/Application-dataPath.html), [Persistent Data Path](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html), [Streaming Assets path](https://docs.unity3d.com/Manual/StreamingAssets.html), or is an absolute path?
+
+### ClearSequence()
+
+`void ClearSequence()`
+'Ejects' the sequence from the player. If a sequence is currently played, it is stopped and then disposed.
 
 ### Play()
 
@@ -357,7 +368,7 @@ Returns:
 
 - `True` When there has been a frame dropped since the last time you checked it, `False` if there has been no frame drop
 
-### GetCacheFilled()
+### IsCacheFilled()
 
 `bool GetCacheFilled()`
 Checks if the playback cache has been filled and is ready to play. If it is, playback starts immediately once you call Play()

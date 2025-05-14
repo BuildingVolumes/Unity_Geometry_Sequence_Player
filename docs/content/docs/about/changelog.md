@@ -19,19 +19,20 @@ Added features:
 
 - Huge overhaul of the playback system. Performance is enhanced by up to 10x-20x.
 - Pointcloud geometry shaders have been replaced by a compute shader system
-- Mac, Iphone, Ipad and VisionOS (Assets store version only) platforms are now supported
+- Mac, Iphone, Ipad and VisionOS support
 - Compressed .astc textures for mobile devices are now supported
 - Converter Tool supports reduction of pointcloud sizes
 - More reliable playback. Lags, or low framerates don't affect the playback speed anymore
 - Added frame debugging/performance tools
-- URP and HDRP render pipelines are now supported
-- Unity 6000 is now supported
+- URP and HDRP render pipelines support
+- Unity 6 support
+- The package is now available on the Unity Asset Store 🙂
 
 Fixed Issues:
 
-[#7 "visionOS Support"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/issues/7)
+[#7 "visionOS Support"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/7)
 
-[#5 "Pointcloud shader not working on Metal/OpenGL](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/issues/5)
+[#5 "Pointcloud shader not working on Metal/OpenGL](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/5)
 
 ### Version 1.0.3
 
@@ -54,9 +55,9 @@ Added features:
 
 Fixed Issues:
 
-[#6 "The transform of Streamed Meshes should be settable before going into play mode"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/issues/6)
+[#6 "The transform of Streamed Meshes should be settable before going into play mode"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/6)
 
-[#3 "Meshes/Pointclouds are mirrored on the X-Axis"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/issues/3)
+[#3 "Meshes/Pointclouds are mirrored on the X-Axis"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/3)
 
 Releases:
 [Package release v1.0.2](https://github.com/BuildingVolumes/Geometry_Sequence_Streaming_Package/releases/tag/v1.0.2)
@@ -65,16 +66,16 @@ Releases:
 
 Fixed Issues:
 
-[#1 "Cannot build as AssetDatabase cannot be used outside the editor"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/issues/1)
+[#1 "Cannot build as AssetDatabase cannot be used outside the editor"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/1)
 
-[#2 "Android /WebGL cannot load data from StreamingAssets Path"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/issues/2)
+[#2 "Android /WebGL cannot load data from StreamingAssets Path"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/2)
 
 Releases:
 [Package release v1.0.1](https://github.com/BuildingVolumes/Geometry_Sequence_Streaming_Package/releases/tag/v1.0.1)
 
 ### Version 1.0.0
 
-Initial Release, this plugin supersedes the [Pointcloud Player Package](https://github.com/ExperimentalSurgery/Unity_Geometry_Sequence_Streaming)
+Initial Release, this plugin supersedes the [Pointcloud Player Package](https://github.com/ExperimentalSurgery/Unity_Geometry_Sequence_Player)
 
-[Converter release v1.0.0](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/releases/tag/v1.0.0)
+[Converter release v1.0.0](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases/tag/v1.0.0)
 [Package release v1.0.1](https://github.com/BuildingVolumes/Geometry_Sequence_Streaming_Package/releases/tag/v1.0.0)

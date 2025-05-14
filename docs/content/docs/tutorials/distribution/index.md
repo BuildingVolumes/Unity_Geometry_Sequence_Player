@@ -1,5 +1,5 @@
 ---
-title: "Distribution"
+title: "Distribution & Platforms"
 description: "Build and playback on other devices"
 lead: "Build and playback on other devices"
 date: 2020-11-16T13:59:39+01:00
@@ -15,14 +15,14 @@ toc: true
 
 ## Build and ship
 
-If you intent to distribute your Application built with the Unity Geometry Sequence Streamer, you need to consider where you store your geometry sequence.
-In Unity, you need to store all assets loaded at runtime in a [**Streamingassets**](https://docs.unity3d.com/Manual/StreamingAssets.html) folder ([except for Android Builds](/Unity_Geometry_Sequence_Streaming/docs/tutorials/distribution/#android)), located inside of the Asset path root, and store all geometry sequences in there. This folder will be copied into your build as-is.
+If you intent to distribute your Application built with the Unity Geometry Sequence Player, you need to consider where you store your geometry sequence.
+In Unity, you need to store all assets loaded at runtime in a [**Streamingassets**](https://docs.unity3d.com/Manual/StreamingAssets.html) folder ([except for Android Builds](#android)), located inside of the Asset path root, and store all geometry sequences in there. This folder will be copied into your build as-is.
 
 1. Inside of the Unity project view, go to the "Assets" folder and create a **Streamingsassets** folder there:
 
     ![Add Streamingassets folder in Assets directory](create_streamingassets.png)
 
-2. Copy all your geometry sequences inside of this folder
+2. Copy all your geometry sequences into this folder
 
 3. In your Geometry Sequence Player, either set the sequence via **Open Sequence** and then choose the folder inside of your streamingassets path *or* set the **Path Relation** to **Relative to Streamingassets** and then enter the path to your sequence, relative to the Streamingassets folder:
 
@@ -48,3 +48,21 @@ On Android, the StreamingAssets path is a special case. Data stored into this pa
 4. Copy your sequence files in the same relative path you set in the Geometry Sequence Player. In our example, the geometry files would be copied into this folder *"\Android\data\com.myCompanyName.myProductName\files\Sequence\MySequence"*
 
 5. Now run your app again, you should now see the sequence streaming successfully.
+
+## Apple Vision Pro
+
+Unity Apps can run in three distinct modes on the Apple Vision Pro: A **flat 2D mode**, where apps appear on a virtual screen, the **bounded mode**, and the **immersive mode**.
+All modes are supported by this plugin. While the **flat mode** runs like an IPhone or IPad application, there are stark differences between the **bounded** and **immersive** mode.
+We generally recommended to use the **immersive** mode whenever you can, due to it's much higher performance capabilities.
+
+### Bounded mode
+
+The bounded mode lets the users run an app along other apps, inside a limited volume, comparable to a 3D window. Apps running in this mode face many restrictions, including not being able to render their content natively. Unity needs to translate all meshes, textures, materials and shaders to RealityKit equivalents, this is called the **PolySpatial** pipeline. Due to these restrictions, playback performance suffers and works only for smaller sequences. Pointclouds sequences should stay under **50.000 points per frame**, mesh sequences under **30.000 polygons per frame**, and textures at or under **2048x2048 texture resolution** per frame. Additionally, there might be a performance ditch when the sequence starts, especially for pointcloud sequences. These are gradually streamed in to not overload the system.
+
+Bounded mode should be detected automatically by the package. If it does not work and you get playback errors while running on the device, you need to have a volume camera component inside your scene.
+
+> ☝️ Due to some lower level code in this package, the playback might not work correctly in the AVP simulator
+
+### Immersive mode
+
+Immersive mode lets the application take over the full rendering on the Apple Vision Pro, which is much more comparable to how apps are run on other headsets, such as the Meta Quest. While no other content than the application can exist in the same space, this mode **increases performance** by a huge margin compared to the bounded mode. We were able to run sequences with 1.5 millions points per frame and more! Please ensure that **no volume camera exists** in your scene if you use this mode, otherwise the bounded rendering path might get erroneously activated by the package.

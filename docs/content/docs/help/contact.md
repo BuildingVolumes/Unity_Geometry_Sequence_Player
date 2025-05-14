@@ -1,5 +1,5 @@
 ---
-title: "Contact us"
+title: "Contact"
 description: ""
 lead: ""
 date: 2020-11-12T13:26:54+01:00
@@ -13,7 +13,9 @@ weight: 320
 toc: true
 ---
 
-👋🏻 For feature requests, contributions to the project, or anything else, please contact us here:
+> 🆘 Do you need help with the package? [Please see here](/docs/help/support/)
+
+For anything besides support, like Pull Requests, collaborations, or special feature requests, please contact us here:
 
 📧 [Send a mail to the author (Christopher Remde):](mailto:hey@chrisrem.de) hey [at] chrisrem.de
 

@@ -15,7 +15,7 @@ toc: true
 
 ## Intro
 
-To gurantee high realtime performance, the Geometry Sequence Streamer can only read sequences that are in special file format (.ply for models, .dds/.astc for textures). However, to support a broad spectrum of input formats and make the usage of this plugin as easy as possible, we provide a small converter tool which takes in almost all widely used mesh and image formats, and converts them into the correct format for the plugin.
+To guarantee high realtime performance, the Geometry Sequence Player can only read sequences that are in a certain file format (.ply for meshes/pointclouds, .dds/.astc for textures). However, to support a broad spectrum of input formats and make the usage of this plugin as easy as possible, we provide a small converter tool which takes in almost all widely used mesh and image formats, and converts them into the correct format for the plugin.
 
 > 👉🏻 Even when your files are already in the .ply/.dds format, they might need to be run through the converter to be encoded correctly!
 >
@@ -65,7 +65,7 @@ And for images:
 
 ### Installing the converter
 
-1. Download the latest version of the [converter tool from here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming/releases). (File named "Geometry_Sequence_Converter_Win64.zip") Currently only windows is supported.
+1. Download the latest version of the [converter tool from here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases). (File named "Geometry_Sequence_Converter_Win64.zip") Currently only windows is supported.
 2. Unpack the file
 3. Open the converter. Go into the unpacked folder and open "GeometrySequenceConverter.exe". Windows might throw a warning that it prevented the app from running, in this case click on "Run anyway" or "More info" and then "Run anyway".
 
@@ -88,7 +88,7 @@ And for images:
 
 ## For developers: Format specification
 
-If you want to export your data into the correct format directly, without using the converter, you can do so! The format used here is not proprietory, but uses the open [*Stanford Polygon File Format* (.ply)](http://paulbourke.net/dataformats/ply/ ) for meshes and pointclouds and the [*DirectDraw Surface* (.dds)*](https://en.wikipedia.org/wiki/DirectDraw_Surface), as well as [*Adaptive Scalable texture compression*](https://en.wikipedia.org/wiki/Adaptive_scalable_texture_compression) file format for textures/images. However, all formats allow a large variety of encoding settings, and the Geometry Sequence Streamer expects a special encoding. Additionally, the Streamer needs to be supplied with a ***sequence.json*** file, which contains metadata about the sequence. The following sections assume that you are a bit familiar with all formats.
+If you want to export your data into the correct format directly, without using the converter, you can do so! The format used here is not proprietory, but uses the open [*Stanford Polygon File Format* (.ply)](http://paulbourke.net/dataformats/ply/ ) for meshes and pointclouds and the [*DirectDraw Surface* (.dds)*](https://en.wikipedia.org/wiki/DirectDraw_Surface), as well as [*Adaptive Scalable texture compression*](https://en.wikipedia.org/wiki/Adaptive_scalable_texture_compression) file format for textures/images. However, all formats allow a large variety of encoding settings, and the Geometry Sequence Player expects a special encoding. Additionally, the Player needs to be supplied with a ***sequence.json*** file, which contains metadata about the sequence. The following sections assume that you are a bit familiar with all formats.
 
 ### Pointcloud .ply files
 

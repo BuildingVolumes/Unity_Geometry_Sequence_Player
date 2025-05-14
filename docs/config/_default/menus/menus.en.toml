@@ -27,17 +27,17 @@
   parent = "docs"
 
 [[main]]
-  name = "About"
+  name = "Help"
   weight = 60
-  identifier = "about-menu"
-  url = "docs/about/building-volumes"
+  identifier = "help-menu"
+  url = "docs/help/issues-and-bugs"
   parent = "docs"
 
 [[main]]
-  name = "Help"
+  name = "About"
   weight = 70
-  identifier = "help-menu"
-  url = "docs/help/issues-and-bugs"
+  identifier = "about-menu"
+  url = "docs/about/building-volumes"
   parent = "docs"
 
 # Documentation Sections
@@ -55,29 +55,29 @@
   url = "/docs/tutorials/"
 
 [[docs]]
-  name = "About"
-  weight = 30
-  identifier = "about"
-  url = "/docs/about/"
-
-[[docs]]
   name = "Help"
-  weight = 40
+  weight = 30
   identifier = "help"
   url = "/docs/help/"
+
+[[docs]]
+  name = "About"
+  weight = 40
+  identifier = "about"
+  url = "/docs/about/"
 
 # Social links
 
 [[social]]
   name = "GitHub"
   pre = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"feather feather-github\"><path d=\"M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22\"></path></svg>"
-  url = "https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Streaming"
+  url = "https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player"
   post = "v0.1.0"
   weight = 10
 
 [[social]]
   name = "Unity Forums"
   pre = "<svg  xmlns=\"http://www.w3.org/2000/svg\"  width=\"24\"  height=\"24\"  viewBox=\"0 0 24 24\"  fill=\"none\"  stroke=\"currentColor\"  stroke-width=\"2\"  stroke-linecap=\"round\"  stroke-linejoin=\"round\"  class=\"icon icon-tabler icons-tabler-outline icon-tabler-brand-unity\"><path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M14 3l6 4v7\" /><path d=\"M18 17l-6 4l-6 -4\" /><path d=\"M4 14v-7l6 -4\" /><path d=\"M4 7l8 5v9\" /><path d=\"M20 7l-8 5\" /></svg>"
-  url = "https://forum.unity.com/threads/released-geometry-sequence-streaming.1453765/"
+  url = "https://assetstore.unity.com/packages/slug/307918"
   post = "v0.1.0"
   weight = 20
