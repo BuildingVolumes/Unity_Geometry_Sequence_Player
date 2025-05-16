@@ -12,8 +12,10 @@ using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer.Explorer;
 
 public class BumpUpPackageVersionAndCopySamples : EditorWindow
 {
-    string pathToPackage = "C:\\Dev\\Volcapture\\Unity_Geometry_Sequence_Streaming\\Geometry_Sequence_Streaming_Package\\";
-    string pathToSamplesRootFolder = "Assets\\Samples\\Geometry Sequence Streaming\\";
+    string pathToPackage = "C:\\Dev\\Volcapture\\Unity_Geometry_Sequence_Player\\Geometry_Sequence_Player_Package";
+    string relativePathToPackageSamples = "Samples~\\SequenceSamples\\";
+    string pathToSamplesRootFolder = "Samples\\Geometry Sequence Player\\";
+    string relativePathToStreamSamples = "\\Sequence Samples\\";
     string pathToSamplesFolder = "";
     string pathToNewSamplesFolder = "";
 
@@ -43,7 +45,7 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
     private void CreateGUI()
     {
         pathToPackageJSON = Path.Combine(pathToPackage, "package.json");
-        pathToSamplesPackageFolder = Path.Combine(pathToPackage, "Samples~\\StreamingSamples\\");
+        pathToSamplesPackageFolder = Path.Combine(pathToPackage, relativePathToPackageSamples);
 
         if (!Directory.Exists(pathToPackage) || !File.Exists(pathToPackageJSON))
         {
@@ -72,8 +74,8 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
 
         string newVersion = newMajor + "." + newMinor + "." + newPatch;
 
-        pathToSamplesFolder = pathToSamplesRootFolder + currentVersion + "\\Streaming Samples\\";
-        pathToNewSamplesFolder = pathToSamplesRootFolder + newVersion + "\\Streaming Samples\\";
+        pathToSamplesFolder = pathToSamplesRootFolder + currentVersion + relativePathToStreamSamples;
+        pathToNewSamplesFolder = "Assets\\" + pathToSamplesRootFolder + newVersion + relativePathToStreamSamples;
 
         if (GUILayout.Button("Change Version and copy samples"))
         {
@@ -138,14 +140,14 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
         string pathToTimelineScene = pathToSamplesFolder + "03_Timeline_Example.unity";
         string pathToAPIScene = pathToSamplesFolder + "04_API_Example.unity";
 
-        string pathToNewSampleDataMesh = "Samples\\Geometry Sequence Streaming\\" + newVersion + "\\Streaming Samples\\ExampleData\\TexturedMesh_Sequence_Sample";
-        string pathToNewSampleDataPC = "Samples\\Geometry Sequence Streaming\\" + newVersion + "\\Streaming Samples\\ExampleData\\Pointcloud_Sequence_Sample";
+        string pathToNewSampleDataMesh = pathToSamplesRootFolder + newVersion + relativePathToStreamSamples + "ExampleData\\TexturedMesh_Sequence_Sample";
+        string pathToNewSampleDataPC = pathToSamplesRootFolder + newVersion + relativePathToStreamSamples+ "ExampleData\\Pointcloud_Sequence_Sample";
 
         UpdateBasicSample(pathToBasicSceneMesh, pathToNewSampleDataMesh);
         UpdateBasicSample(pathToBasicScenePC, pathToNewSampleDataPC);
         UpdateTimelineSample(pathToTimelineScene, pathToNewSampleDataMesh);
         UpdateAPISample(pathToAPIScene, pathToNewSampleDataMesh);
-        RenameSamplePath(pathToSamplesRootFolder + currentVersion, pathToSamplesRootFolder + newVersion);
+        RenameSamplePath("Assets\\" + pathToSamplesRootFolder + currentVersion, "Assets\\" + pathToSamplesRootFolder + newVersion);
     }
 
     bool UpdateBasicSample(string pathToScene, string pathToNewSampleData)
@@ -302,16 +304,16 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
         DirectoryInfo[] dirs = dir.GetDirectories();
 
         //Delete the files in the destination directory
-        foreach(string filePath in Directory.GetFiles(destinationDir))
+        if (Directory.Exists(destinationDir))
         {
-            File.Delete(filePath);
+            foreach (string filePath in Directory.GetFiles(destinationDir))
+            {
+                File.Delete(filePath);
+            }
         }
 
-
-
         // Create the destination directory
-        Directory.CreateDirectory(destinationDir);
-
+        DirectoryInfo info = Directory.CreateDirectory(destinationDir);
 
         // Get the files in the source directory and copy to the destination directory
         foreach (FileInfo file in dir.GetFiles())
