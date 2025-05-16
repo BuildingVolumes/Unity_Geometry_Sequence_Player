@@ -26,7 +26,7 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 3. Copy and paste the following URL into the field and click **Add**: `https://github.com/BuildingVolumes/Geometry_Sequence_Player_Package.git`
 
-[More info](/docs/tutorials/installation/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/)
 
 ### Install the package (From Unity Store)
 
@@ -36,7 +36,7 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 3. Click on the **Install** Button.
 
-[More info](/docs/tutorials/installation/#package-installation-unity-store-version)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#package-installation-unity-store-version)
 
 ## Play a sample sequence
 
@@ -48,4 +48,4 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 ![Blob](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmVvbXVpazdyanR0dmxyNDhjazNkM3owcnV3NHlwMWFseDRpemoyeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XuN1lmgwobrU8eWgsb/giphy.gif)
 
-[More info](/docs/tutorials/installation/#importing-the-samples)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#importing-the-samples)

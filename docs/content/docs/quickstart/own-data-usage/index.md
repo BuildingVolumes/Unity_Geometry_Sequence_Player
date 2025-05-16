@@ -27,7 +27,7 @@ toc: true
 
     ![The converter](Converter_Start_Threads.png)
 
-[More infos](/docs/tutorials/preparing-your-sequences/)
+[More infos](/Unity_Geometry_Sequence_Player/docs/tutorials/preparing-your-sequences/)
 
 ## Playback your sequence
 
@@ -39,4 +39,4 @@ toc: true
 
 4. Click on Play in Unity.
 
-[More infos](/docs/tutorials/playback/)
+[More infos](/Unity_Geometry_Sequence_Player/docs/tutorials/playback/)

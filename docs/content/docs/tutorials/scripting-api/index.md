@@ -17,7 +17,7 @@ toc: true
 
 Besides playback from the timeline and the editor controls, this package also features a API, so that you can control playback from your own scripts. This is for example useful, if you want to let the user control playback via UI buttons, or you want to interactively integrate the player into your experience!
 
-> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [04_API_Example](/docs/tutorials/installation/#importing-the-samples)
+> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [04_API_Example](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#importing-the-samples)
 
 ## Setup
 
@@ -65,7 +65,7 @@ You can the load your sequence with the **OpenSequence()** function at any point
 player.OpenSequence("C:\MySequences\MyOwnSequence\", GeometrySequencePlayer.PathType.AbsolutePath, 30, true);
 ```
 
-👉 For an overview about the API Features, take a look at the [Scripting Reference](/docs/tutorials/scripting-api/#scripting-reference)
+👉 For an overview about the API Features, take a look at the [Scripting Reference](/Unity_Geometry_Sequence_Player/docs/tutorials/scripting-api/#scripting-reference)
 
 ## Events
 

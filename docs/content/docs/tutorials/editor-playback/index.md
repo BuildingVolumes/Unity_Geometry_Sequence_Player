@@ -18,7 +18,7 @@ toc: true
 
 After you've prepared and converted your sequence, you can now play them back in Unity! This section shows you how to use the streaming and playback components inside of the editor and how to setup a simple playback scene.
 
-> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene  [01_Basic_Sample](/docs/tutorials/installation/#importing-the-samples)
+> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene  [01_Basic_Sample](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#importing-the-samples)
 
 ## Playback
 
@@ -29,7 +29,7 @@ After you've prepared and converted your sequence, you can now play them back in
 ![Add component](editor_playback_add_component.png)
 
 3. You should now see a Geometry Sequence Player and Geometry Sequence Stream component attached to your Gameobject. Click on **"Open Sequence"** in the Player script, and open the  **sequence.json** from the folder in which your converted sequence is stored. It is strongly recommended to store your sequence on the fastest drive available, preferably an SSD.
-    > ⚠️ When you're just testing, or you don't intent to distribute your app to other PCs than your own, it's fine to store the sequence anywhere on disk. However, if you plan to distribute your application, [please take a look here](/docs/tutorials/distribution-platforms/)!
+    > ⚠️ When you're just testing, or you don't intent to distribute your app to other PCs than your own, it's fine to store the sequence anywhere on disk. However, if you plan to distribute your application, [please take a look here](/Unity_Geometry_Sequence_Player/docs/tutorials/distribution-platforms/)!
   
     ![Open Sequence](editor_playback_open_sequence.png)
 
@@ -60,7 +60,7 @@ Detailed explanation of all the settings and controls inside of the player and s
 
 **Loop playback:** If activated, repeats the animation indefinitely
 
-**Events:** With this Unity Event control, you can assign scripts that should receive events from the player. [More on Events](/docs/tutorials/scripting-api/#events)
+**Events:** With this Unity Event control, you can assign scripts that should receive events from the player. [More on Events](/Unity_Geometry_Sequence_Player/docs/tutorials/scripting-api/#events)
 
 **Playback controls:** Use the slider to skip to any time in the sequence, just like in a regular video player. On the right, you can see at which frame the playback is right now, and how many frames there are in total in the sequence. Use the **|<** Button to go back to the start of the sequence, the **<<** and **>>** to scroll forwards/backwards for a few frames, the **Stop** Button to stop playback and the **Play/Pause** button to pause/resume the playback. These controls are only available in the editor.
 

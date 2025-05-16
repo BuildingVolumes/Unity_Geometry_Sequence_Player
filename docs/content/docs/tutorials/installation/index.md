@@ -26,7 +26,7 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 3. Copy and paste the following URL and click **Add**: `https://github.com/BuildingVolumes/Geometry_Sequence_Player_Package.git` ![Installing a package](package_manager_add.png)
 
-4. Unity now installs the package, and after a short time it should show up in your manager. Done! We strongly recommend that you also install the [Samples](/docs/tutorials/unity-package-installation/#importing-the-samples)
+4. Unity now installs the package, and after a short time it should show up in your manager. Done! We strongly recommend that you also install the [Samples](/Unity_Geometry_Sequence_Player/docs/tutorials/unity-package-installation/#importing-the-samples)
 
 ## Package Installation (Unity Store Version)
 
@@ -34,7 +34,7 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 2. In the Package Manager window, go to **My Assets**, select the **Geometry Sequence Player Package** and click on **Install** ![Select Unity Store Version](package_manager_install_storebought.png)
 
-3. Unity now installs the package, and after a short time it should show up in your manager. Done! We strongly recommend that you also install the [Samples](/docs/tutorials/unity-package-installation/#importing-the-samples)
+3. Unity now installs the package, and after a short time it should show up in your manager. Done! We strongly recommend that you also install the [Samples](/Unity_Geometry_Sequence_Player/docs/tutorials/unity-package-installation/#importing-the-samples)
 
 ## Importing the samples
 

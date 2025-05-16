@@ -13,7 +13,7 @@ weight: 320
 toc: true
 ---
 
-> 🆘 Do you need help with the package? [Please see here](/docs/help/support/)
+> 🆘 Do you need help with the package? [Please see here](/Unity_Geometry_Sequence_Player/docs/help/support/)
 
 For anything besides support, like Pull Requests, collaborations, or special feature requests, please contact us here:
 
