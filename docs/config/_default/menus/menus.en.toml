@@ -27,17 +27,17 @@
   parent = "docs"
 
 [[main]]
-  name = "About"
+  name = "Help"
   weight = 60
-  identifier = "about-menu"
-  url = "docs/about/building-volumes"
+  identifier = "help-menu"
+  url = "docs/help/issues-and-bugs"
   parent = "docs"
 
 [[main]]
-  name = "Help"
+  name = "About"
   weight = 70
-  identifier = "help-menu"
-  url = "docs/help/issues-and-bugs"
+  identifier = "about-menu"
+  url = "docs/about/building-volumes"
   parent = "docs"
 
 # Documentation Sections
@@ -55,16 +55,16 @@
   url = "/docs/tutorials/"
 
 [[docs]]
-  name = "About"
-  weight = 30
-  identifier = "about"
-  url = "/docs/about/"
-
-[[docs]]
   name = "Help"
-  weight = 40
+  weight = 30
   identifier = "help"
   url = "/docs/help/"
+
+[[docs]]
+  name = "About"
+  weight = 40
+  identifier = "about"
+  url = "/docs/about/"
 
 # Social links
 
@@ -78,6 +78,6 @@
 [[social]]
   name = "Unity Forums"
   pre = "<svg  xmlns=\"http://www.w3.org/2000/svg\"  width=\"24\"  height=\"24\"  viewBox=\"0 0 24 24\"  fill=\"none\"  stroke=\"currentColor\"  stroke-width=\"2\"  stroke-linecap=\"round\"  stroke-linejoin=\"round\"  class=\"icon icon-tabler icons-tabler-outline icon-tabler-brand-unity\"><path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M14 3l6 4v7\" /><path d=\"M18 17l-6 4l-6 -4\" /><path d=\"M4 14v-7l6 -4\" /><path d=\"M4 7l8 5v9\" /><path d=\"M20 7l-8 5\" /></svg>"
-  url = "https://forum.unity.com/threads/released-geometry-sequence-streaming.1453765/"
+  url = "https://assetstore.unity.com/packages/slug/307918"
   post = "v0.1.0"
   weight = 20

@@ -1,6 +1,6 @@
 # Hugo
-title = "Unity Geometry Sequence Streamer"
-description = "This Unity package allows you to stream large pointcloud and mesh sequences from disk, especially suited to playback Volumetric Video."
+title = "Unity Geometry Sequence Player"
+description = "This package allows you to playback large pointcloud and mesh sequences in the Unity Engine."
 images = ["cover.png"]
 
 # mainSections
@@ -127,10 +127,10 @@ mainSections = ["docs"]
     maskIcon = "mask-icon.svg" # mask-icon.svg (default)
     maskIconColor = "white" # white (default)
   [seo.schemas]
-    type = "Organization" # Organization (default) or Person
+    type = "Person" # Organization (default) or Person
     logo = "favicon-512x512.png" # Logo of Organization — favicon-512x512.png (default)
-    name = "Hyas" # Name of Organization or Person
-    sameAs = [] # E.g. ["https://github.com/gethyas/hyas", "https://fosstodon.org/@hyas"]
+    name = "Christopher Remde" # Name of Organization or Person
+    sameAs = ["https://chrisrem.de/", "https://bsky.app/profile/rattix.bsky.social", "https://github.com/ChristopherRemde"] # E.g. ["https://github.com/gethyas/hyas", "https://fosstodon.org/@hyas"]
     images = ["cover.png"] # ["cover.png"] (default)
     article = [] # Article sections
     newsArticle = [] # NewsArticle sections

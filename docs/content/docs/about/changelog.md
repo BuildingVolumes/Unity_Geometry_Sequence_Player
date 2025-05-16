@@ -13,6 +13,27 @@ weight: 420
 toc: true
 ---
 
+### Version 1.1.0
+
+Added features:
+
+- Huge overhaul of the playback system. Performance is enhanced by up to 10x-20x.
+- Pointcloud geometry shaders have been replaced by a compute shader system
+- Mac, Iphone, Ipad and VisionOS support
+- Compressed .astc textures for mobile devices are now supported
+- Converter Tool supports reduction of pointcloud sizes
+- More reliable playback. Lags, or low framerates don't affect the playback speed anymore
+- Added frame debugging/performance tools
+- URP and HDRP render pipelines support
+- Unity 6 support
+- The package is now available on the Unity Asset Store 🙂
+
+Fixed Issues:
+
+[#7 "visionOS Support"](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/7)
+
+[#5 "Pointcloud shader not working on Metal/OpenGL](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues/5)
+
 ### Version 1.0.3
 
 Added features:
@@ -57,4 +78,4 @@ Releases:
 Initial Release, this plugin supersedes the [Pointcloud Player Package](https://github.com/ExperimentalSurgery/Unity_Geometry_Sequence_Player)
 
 [Converter release v1.0.0](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases/tag/v1.0.0)
-[Package release v1.0.1](https://github.com/BuildingVolumes/Geometry_Sequence_Player_Package/releases/tag/v1.0.0)
+[Package release v1.0.1](https://github.com/BuildingVolumes/Geometry_Sequence_Streaming_Package/releases/tag/v1.0.0)

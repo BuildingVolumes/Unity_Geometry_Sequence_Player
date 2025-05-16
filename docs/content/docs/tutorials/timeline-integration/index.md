@@ -15,9 +15,9 @@ toc: true
 
 ## Intro
 
-> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [02_Timeline_Example](/Unity_Geometry_Sequence_Player/docs/tutorials/unity-package-installation/#importing-the-samples-optional)
-
 For playback scenarios, where a precise control of the playback, or cohesive animation with other objects is needed, the package also supports the playback from the Unity Timeline.
+
+> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [03_Timeline_Example](/docs/tutorials/installation/#importing-the-samples)
 
 ## Setting up a timeline clip
 

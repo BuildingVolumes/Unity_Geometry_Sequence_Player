@@ -13,10 +13,10 @@ weight: 320
 toc: true
 ---
 
-👋🏻 For cooperation proposals, contributions to the project, or anything else, please contact us here:
+> 🆘 Do you need help with the package? [Please see here](/docs/help/support/)
+
+For anything besides support, like Pull Requests, collaborations, or special feature requests, please contact us here:
 
 📧 [Send a mail to the author (Christopher Remde):](mailto:hey@chrisrem.de) hey [at] chrisrem.de
 
 👾 [Join us in our BuildingVolumes community discord server](https://discord.gg/BvQdJdJqu6)
-
-> ☝🏻 If you have an issue in the project, or you encounter any bugs, please don't contact us here, but instead [open an issue on Github!](/Unity_Geometry_Sequence_Player/docs/help/issues/)

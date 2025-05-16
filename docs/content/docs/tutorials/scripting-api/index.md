@@ -13,11 +13,11 @@ weight: 150
 toc: true
 ---
 
-> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [03_API_Example](/Unity_Geometry_Sequence_Player/docs/tutorials/unity-package-installation/#importing-the-samples-optional)
-
 ## Intro
 
-Beside playback from timeline and in the editor, this package also allows you to control playback from your own scripts. This is useful, if you have for example playback control by the user via UI buttons, or you want interactivly integrate playback inside your application.
+Besides playback from the timeline and the editor controls, this package also features a API, so that you can control playback from your own scripts. This is for example useful, if you want to let the user control playback via UI buttons, or you want to interactively integrate the player into your experience!
+
+> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [04_API_Example](/docs/tutorials/installation/#importing-the-samples)
 
 ## Setup
 
@@ -26,7 +26,7 @@ To use the Scripting API, you need to have a gameobject in the scene that has th
 First, include the BuildingVolumes namespace inside your script with:
 
 ```C#
-using BuildingVolumes.Streaming;
+using BuildingVolumes.Player;
 ```
 
 In your script, you then have to get the **Geometry Sequence Player** component, ideally directly in the start function:
@@ -39,11 +39,11 @@ void Start()
     }
 ```
 
-Then, we recommend that you disable **Play at Start** and **Loop Playback** either directly through the editor inside of the **Geometry Sequence Player** component:
+Then, we recommend that you disable **Play at Start** and **Loop Playback** either directly through in the **Geometry Sequence Player** component:
 
 ![Unchecking the auto start and loop options inside of the editor](api_disable_startloop.png)
 
-or via script inside of the start function. This ensures that you have full control over when and how you want to play your sequence.
+or via script inside of the start function:
 
 ```C#
 void Start()
@@ -57,18 +57,22 @@ void Start()
     }
 ```
 
+This ensures that you have full control over when and how you want to play your sequence.
 You can the load your sequence with the **OpenSequence()** function at any point:
 
 ```C#
-//Load our sequence, set its framerate to 30 and play it directly after loading
+//Load our sequence from an absolute path, set its framerate to 30 and play it directly after loading
 player.OpenSequence("C:\MySequences\MyOwnSequence\", GeometrySequencePlayer.PathType.AbsolutePath, 30, true);
 ```
 
-👉 For an overview about the API Features, take a look at the [Scripting Reference](/Unity_Geometry_Sequence_Player/docs/tutorials/scripting-api/#scripting-reference)
+👉 For an overview about the API Features, take a look at the [Scripting Reference](/docs/tutorials/scripting-api/#scripting-reference)
 
 ## Events
 
 Events can be used to react to certain actions of the Playback, such as when Playback has started, stopped, or buffering has finished.
+
+### Receive events
+
 To receive an event, you need to define a function in your code, which can receive a `GeometrySequencePlayer` object and a `GeometrySequencePlayer.GSPlayerEvents` enum. Use the `GSPlayerEvents` enum to receive the information which event has been triggered, and the player object to determine which player has fired the event.
 
 ```C#
@@ -80,8 +84,8 @@ public void PlaybackEventListener(GeometrySequencePlayer player, GeometrySequenc
             case GeometrySequencePlayer.GSPlayerEvents.PlaybackFinished:
                 print("Playback Finished!");
                 break;
-            case GeometrySequencePlayer.GSPlayerEvents.PlaybackStarted:
-                print("Playback Started!");
+            case GeometrySequencePlayer.GSPlayerEvents.SequenceChanged:
+                print("Sequence has been changed!");
                 break;
         }
     }
@@ -89,17 +93,15 @@ public void PlaybackEventListener(GeometrySequencePlayer player, GeometrySequenc
 
 To actually receive the events, you need to subscribe to them. You can either do this by adding a reference to your function inside the GeometrySequencePlayer **in the editor**, or subscribing to a Players events **inside your script (recommended)**.
 
-&nbsp;
+### Subscribe to event in Editor
 
-**Subscribe via Editor:**
 To subscribe to events via the Editor, go to your GeometrySequencePlayer into the events foldout, click on **+** and drag and drop your script into the event subscription box. Now, select your function.
 
 ![Adding event subscription inside the editor](editor_playback_add_event.png)
 
-&nbsp;
+### Subscribe to event in Code
 
-**Subscribe via Code:**
-To subscribe to an event via code, get a reference to the player you want to subscribe to, and then add a Listener to the event. Dont forget to unsubscribe when the script gets destroyed/disabled!
+To subscribe to an event via code, get a reference to the player you want to subscribe to, and then add a Listener to the event. Don't forget to unsubscribe when the script gets destroyed/disabled!
 
 ```C#
 
@@ -141,7 +143,7 @@ Parameters:
 
 Returns:
 
-- **True** when sequence could successfully be loaded, **false** when an error has occured while loading. Take a look in the Unity console in this case
+- **True** when sequence could successfully be loaded, **false** when an error has occurred while loading. Take a look in the Unity console in this case
 
 ### LoadCurrentSequence()
 
@@ -153,7 +155,7 @@ Returns:
 
 Returns:
 
-- **True** when sequence could successfully be loaded, **false** when an error has occured while loading. Take a look in the Unity console in this case
+- **True** when sequence could successfully be loaded, **false** when an error has occurred while loading. Take a look in the Unity console in this case
 
 ### SetPath()
 
@@ -163,6 +165,11 @@ Parameters:
 
 - `path`: The relative or absolute path to the folder containing the directory. Should end with a slash
 - `relativeTo`: Is the path relative to the [Data path](https://docs.unity3d.com/ScriptReference/Application-dataPath.html), [Persistent Data Path](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html), [Streaming Assets path](https://docs.unity3d.com/Manual/StreamingAssets.html), or is an absolute path?
+
+### ClearSequence()
+
+`void ClearSequence()`
+'Ejects' the sequence from the player. If a sequence is currently played, it is stopped and then disposed.
 
 ### Play()
 
@@ -217,7 +224,7 @@ Parameters:
 
 Returns:
 
-- `True` when skipping was successfull `False` if there has been an error, or the desired frame index was out of range
+- `True` when skipping was successful `False` if there has been an error, or the desired frame index was out of range
 
 ### GoToTime()
 
@@ -259,11 +266,20 @@ Returns:
 ### GetRelativeTo()
 
 `GeometrySequenceStream.PathType GetRelativeTo()`
-Get the location to to which the relativePath is relative to. Use [Application.datapath](https://docs.unity3d.com/ScriptReference/Application-dataPath.html), [Application.persistentDataPath](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html) or [Application.streamingAssetsPath](https://docs.unity3d.com/Manual/StreamingAssets.html) to get the actual path string, depeding on the return type.
+Get the location to to which the relativePath is relative to. Use [Application.datapath](https://docs.unity3d.com/ScriptReference/Application-dataPath.html), [Application.persistentDataPath](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html) or [Application.streamingAssetsPath](https://docs.unity3d.com/Manual/StreamingAssets.html) to get the actual path string, depending on the return type.
 
 Returns
 
 - The relative location
+
+### IsInitialized()
+
+`bool IsInitialized()`
+Is a sequence currently loaded and ready to play?
+
+Returns:
+
+- `True` if a sequence is initialized and ready to play, `False` if not
 
 ### IsPlaying()
 
@@ -324,7 +340,7 @@ Returns:
 ### GetTargetFPS()
 
 `float GetTargetFPS()`
-The target fps is the framerate we _want_ to achieve in playback. However, this is not guranteed, if system resources
+The target fps is the framerate we _want_ to achieve in playback. However, this is not guaranteed, if system resources
 are too low. Use GetActualFPS() to see if you actually achieve this framerate
 
 Returns:
@@ -344,15 +360,15 @@ Returns:
 ### GetFrameDropped()
 
 `bool GetFrameDropped()`
-Check if there have been framedrops since you last checked this function. You should pull this data every frame.
-Too many framedrops mean the system can't keep up with the playback
+Check if there have been frame drops since you last checked this function. You should pull this data every frame.
+Too many frame drops mean the system can't keep up with the playback
 and you should reduce your Geometric complexity or framerate.
 
 Returns:
 
-- `True` When there has been a frame dropped since the last time you checked it, `False` if there has been no framedrop
+- `True` When there has been a frame dropped since the last time you checked it, `False` if there has been no frame drop
 
-### GetCacheFilled()
+### IsCacheFilled()
 
 `bool GetCacheFilled()`
-Checks if the playback cache has been filled and is ready to play.
+Checks if the playback cache has been filled and is ready to play. If it is, playback starts immediately once you call Play()

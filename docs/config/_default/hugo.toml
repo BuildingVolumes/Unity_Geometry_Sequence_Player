@@ -1,4 +1,4 @@
-title = "Unity Geometry Sequence Streamer"
+title = "Unity Geometry Sequence Player"
 baseurl = "https://localhost/"
 canonifyURLs = false
 disableAliases = true
@@ -82,5 +82,5 @@ copyRight = "Copyright (c) 2020-2024 Hyas"
   anchor = "Center"
   bgColor = "#ffffff"
   hint = "photo"
-  quality = 85
+  quality = 100
   resampleFilter = "Lanczos"

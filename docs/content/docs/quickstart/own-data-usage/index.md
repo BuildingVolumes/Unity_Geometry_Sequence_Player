@@ -13,26 +13,30 @@ weight: 30
 toc: true
 ---
 
-> 👉🏻 This is just a quick summary of the conversion process, more details can be [found here](/Unity_Geometry_Sequence_Player/docs/tutorials/preparing-your-sequences/)
+> ⤴️ Sequences that were created before package version 1.1.0 are not compatible with the current package. Please re-convert these files with the latest Converter.
 
-## Conversion
+## Convert your sequence
 
 1. Ensure that in your input sequence, each frame file is numbered in an ascending order
 
-2. Almost all commonly used pointcloud/mesh (.fbx .obj .gltf .ply .xzy) and image (.dds .jpeg .png .tga) formats can be used as source material. Ensure that your sequence is in such a format
+2. Almost all commonly used pointcloud (.ply, .xyz, ect), mesh (.fbx, .obj, .gltf, etc) and image (.jpeg .png .tga, ect.) formats can be used as source material. Ensure that your sequence is in such a format
 
 3. Download the latest converter [binaries for windows here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases) (The file named Geometry_Sequence_Converter_Win64.zip)
 
-4. Unzip, open the converter, and set the **input folder** to the folder containing your sequence. The **output folder** should be set to a different (empty) folder. Click on **Start Conversion**.
+4. Unzip, open the converter, and set the **input folder** to the folder containing your sequence. You can optionally set an output folder, otherwise a new folder will be automatically created. Click on **Start Conversion**.
 
     ![The converter](Converter_Start_Threads.png)
 
-## Playback in Unity
+[More infos](/docs/tutorials/preparing-your-sequences/)
+
+## Playback your sequence
 
 1. Open your project and scene in Unity.
 
 2. Add a **GeometrySequencePlayer** component to any gameobject.
 
-3. Click on **Open Sequence** and open the folder with the converted sequence (the output folder).
+3. Click on **Open Sequence** and open the ***sequence.json*** file contained in the converted sequence folder (the output folder).
 
-4. Click on Play in Unity. Your scene should now start with the playback/streaming.
+4. Click on Play in Unity.
+
+[More infos](/docs/tutorials/playback/)

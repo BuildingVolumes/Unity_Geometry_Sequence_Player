@@ -1,7 +1,7 @@
 ---
-title : "Unity Geometry Sequence Streaming"
-description: "This Unity package allows you to stream large pointcloud and mesh sequences from disk, for example Volumetric Video."
-lead: "This Unity package allows you to stream large pointcloud and mesh sequences from disk, especially suited to playback Volumetric Video."
+title : "Unity Geometry Sequence Player"
+description: "Pointcloud and mesh sequence playback for the Unity game engine."
+lead: "Pointcloud and mesh sequence playback for the Unity game engine."
 date: 2020-10-06T08:47:36+00:00
 lastmod: 2020-10-06T08:47:36+00:00
 draft: false
