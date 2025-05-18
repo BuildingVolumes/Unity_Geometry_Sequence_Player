@@ -1,3 +1,4 @@
 [submodule "Geometry_Sequence_Player_Package"]
 	path = Geometry_Sequence_Player_Package
 	url = https://github.com/BuildingVolumes/Geometry_Sequence_Player_Package.git
+	update = merge
