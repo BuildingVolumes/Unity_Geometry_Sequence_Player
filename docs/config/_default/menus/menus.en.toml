@@ -23,14 +23,14 @@
   name = "Tutorials"
   weight = 50
   identifier = "tutorials-menu"
-  url = "docs/tutorials/basic-playback"
+  url = "docs/tutorials/installation"
   parent = "docs"
 
 [[main]]
   name = "Help"
   weight = 60
   identifier = "help-menu"
-  url = "docs/help/issues-and-bugs"
+  url = "docs/help/support"
   parent = "docs"
 
 [[main]]
