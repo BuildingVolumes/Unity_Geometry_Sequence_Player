@@ -40,12 +40,14 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 ## Play a sample sequence
 
-1. Install the samples into your project by going into **Package Manager –> In Project**. Select the **Geometry Sequence Player package** and open the **Sample foldout**. Then click on **Import**.
+1. Open the Package Manager (Window -> Package Manager)
 
-2. In your assets folder, go into `Samples -> Geometry Sequence Player -> 1.X.X -> Streaming Samples`  and open the Sample scene **01_Basic_Example**
+2. Select the **In Project** category on the left side. Select the **Geometry Sequence Player package** and open the **Sample foldout**. Then click on **Import**. The samples are now being imported into your projects asset folder.
+
+3. In your assets folder, go to `Samples -> Geometry Sequence Player -> 1.X.X -> Streaming Samples`  and open the Sample scene **01_Basic_Example**
 
 3. Click on the **"Play"-Button** in Unity. You should now see an animated blob.
 
 ![Blob](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmVvbXVpazdyanR0dmxyNDhjazNkM3owcnV3NHlwMWFseDRpemoyeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XuN1lmgwobrU8eWgsb/giphy.gif)
 
-[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#importing-the-samples)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/samples/)
