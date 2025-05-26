@@ -78,7 +78,7 @@ This scene shows how to setup and control sequence playback from the Unity Timel
 
 > Try adding the pointcloud sequence to the timeline, so that it plays after the mesh sequence has finished
 
-[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/timeline/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/timeline-integration/)
 
 
 ### Sample 04: Scripting API
