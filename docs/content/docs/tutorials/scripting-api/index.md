@@ -9,7 +9,7 @@ images: []
 menu:
   docs:
     parent: "tutorials"
-weight: 150
+weight: 160
 toc: true
 ---
 
@@ -17,7 +17,7 @@ toc: true
 
 Besides playback from the timeline and the editor controls, this package also features a API, so that you can control playback from your own scripts. This is for example useful, if you want to let the user control playback via UI buttons, or you want to interactively integrate the player into your experience!
 
-> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [04_API_Example](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#importing-the-samples)
+> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene [04_API_Example](/Unity_Geometry_Sequence_Player/docs/tutorials/samples/#sample-04-scripting-api)
 
 ## Setup
 

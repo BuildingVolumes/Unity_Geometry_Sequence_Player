@@ -9,7 +9,7 @@ images: []
 menu:
   docs:
     parent: "tutorials"
-weight: 115
+weight: 120
 toc: true
 ---
 
@@ -49,7 +49,7 @@ You can inspect the sequence that has been used at:
 
 > Try playing around with the media controls on the **Geometry Sequence Player** component 
 
-[More info](Unity_Geometry_Sequence_Player/docs/tutorials/playback/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/playback/)
 
 ### Sample 02: Pointcloud Playback
 
@@ -63,7 +63,7 @@ You can inspect the sequence at:
 
 > Try changing the **point size** and **point type** options on the **Geometry Sequence Stream** component 
 
-[More info](Unity_Geometry_Sequence_Player/docs/tutorials/playback/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/playback/)
 
 ### Sample 03: Timeline Playback
 
@@ -78,7 +78,7 @@ This scene shows how to setup and control sequence playback from the Unity Timel
 
 > Try adding the pointcloud sequence to the timeline, so that it plays after the mesh sequence has finished
 
-[More info](Unity_Geometry_Sequence_Player/docs/tutorials/timeline/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/timeline/)
 
 
 ### Sample 04: Scripting API
@@ -87,4 +87,4 @@ This scene shows how to setup and control sequence playback from the Unity Timel
 
 This scene is mostly identical to the [basic playback scene](#sample-01-basic-playback), but the **Sequence Player** Gameobject additionally contains the **Geometry Sequence API Example** script, which shows how to use the Scripting API for playback control and how to listen to playback events. The script is well-commented, so we recommend to read it to see how the playback API works. Press **Play** to enter the game mode. The sequence should play halfway three times before stopping, just as programmed in the script.
 
-[More info](Unity_Geometry_Sequence_Player/docs/tutorials/scripting-api/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/scripting-api/)

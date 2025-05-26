@@ -9,7 +9,7 @@ images: []
 menu:
   docs:
     parent: "tutorials"
-weight: 130
+weight: 140
 toc: true
 ---
 
@@ -18,7 +18,7 @@ toc: true
 
 After you've prepared and converted your sequence, you can now play them back in Unity! This section shows you how to use the streaming and playback components inside of the editor and how to setup a simple playback scene.
 
-> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene  [01_Basic_Sample](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#importing-the-samples)
+> 💡 All of the features explained here in this tutorial can also be found in the Sample Scene  [01_Basic_Sample](/Unity_Geometry_Sequence_Player/docs/tutorials/samples/#sample-01-basic-playback)
 
 ## Playback
 
