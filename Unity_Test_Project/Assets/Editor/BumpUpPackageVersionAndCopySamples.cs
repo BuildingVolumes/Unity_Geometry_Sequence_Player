@@ -12,7 +12,7 @@ using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer.Explorer;
 
 public class BumpUpPackageVersionAndCopySamples : EditorWindow
 {
-    string pathToPackage = "C:\\Dev\\Volcapture\\Unity_Geometry_Sequence_Player\\Geometry_Sequence_Player_Package";
+    string pathToPackage;
     string relativePathToPackageSamples = "Samples~\\SequenceSamples\\";
     string pathToSamplesRootFolder = "Samples\\Geometry Sequence Player\\";
     string relativePathToStreamSamples = "\\Sequence Samples\\";
@@ -44,20 +44,35 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
 
     private void CreateGUI()
     {
-        pathToPackageJSON = Path.Combine(pathToPackage, "package.json");
         pathToSamplesPackageFolder = Path.Combine(pathToPackage, relativePathToPackageSamples);
 
-        if (!Directory.Exists(pathToPackage) || !File.Exists(pathToPackageJSON))
+        bool cancel = false;
+        while(!pathValid && !cancel)
         {
-            EditorUtility.DisplayDialog("Path invalid!", "Path to package not found! Please change path in script", "Ok");
-            pathValid = false;
+            pathToPackageJSON = Path.Combine(pathToPackage, "package.json");
+
+            if (!Directory.Exists(pathToPackage) || !File.Exists(pathToPackageJSON))
+            {
+                EditorUtility.DisplayDialog("Path invalid!", "Path to package not found! Please change the path now", "Ok");
+
+                string newPathToPackage = EditorUtility.OpenFolderPanel("Select Package folder", pathToPackage, "");
+                if (newPathToPackage == String.Empty)
+                    cancel = true;
+                else
+                    pathToPackage = newPathToPackage;
+            }
+
+            else
+            {
+                GetCurrentPackageVersion();
+                pathValid = true;
+            }
         }
 
-        else
-        {
-            GetCurrentPackageVersion();
-            pathValid = true;
-        }
+       
+
+        if (cancel)
+            pathValid = false;
     }
 
     void OnGUI()
@@ -92,7 +107,6 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
             GetCurrentPackageVersion();
             EditorUtility.SetDirty(this);
         }
-
     }
 
     void GetCurrentPackageVersion()
