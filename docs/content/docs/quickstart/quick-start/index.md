@@ -34,7 +34,7 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 2. In the **Package Manager window**, go to **My Assets** and select the **Geometry Sequence Player** package.
 
-3. Click on the **Install** Button.
+3. Click on the **Download** button. Once finished click on the **Import X.X.X to your project** button and then import all files.
 
 [More info](/Unity_Geometry_Sequence_Player/docs/tutorials/installation/#package-installation-unity-store-version)
 
@@ -43,6 +43,8 @@ If you still have the old version, we recommend to remove it and then reinstall 
 1. Open the Package Manager (Window -> Package Manager)
 
 2. Select the **In Project** category on the left side. Select the **Geometry Sequence Player package** and open the **Sample foldout**. Then click on **Import**. The samples are now being imported into your projects asset folder.
+
+> ⭐ For the Unity Asset Store version, two versions of the Geometry Sequence Player package will appear in the list. One under "Packages - Asset Store and one under "Packages - BuildingVolumes". You need to select the **Building Volumes** version.
 
 3. In your assets folder, go to `Samples -> Geometry Sequence Player -> 1.X.X -> Streaming Samples`  and open the Sample scene **01_Basic_Example**
 
