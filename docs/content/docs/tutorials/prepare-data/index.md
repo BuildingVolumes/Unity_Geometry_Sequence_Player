@@ -67,7 +67,8 @@ And for images:
 
 1. Download the latest version of the [converter tool from here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases). (File named "Geometry_Sequence_Converter_Win64.zip") Currently only windows is supported.
 2. Unpack the file
-3. Open the converter. Go into the unpacked folder and open "GeometrySequenceConverter.exe". Windows might throw a warning that it prevented the app from running, in this case click on "Run anyway" or "More info" and then "Run anyway".
+3. Windows might show you a warning screen. You can click on ***More info*** and then ***Run anyways***
+4. Open the converter. Go into the unpacked folder and open "GeometrySequenceConverter.exe". Windows might throw a warning that it prevented the app from running, in this case click on "Run anyway" or "More info" and then "Run anyway".
 
 ### Using the converter
 

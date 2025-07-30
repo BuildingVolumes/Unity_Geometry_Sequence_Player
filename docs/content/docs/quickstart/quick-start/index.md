@@ -16,6 +16,8 @@ toc: true
 > 👉 The package has recently been renamed from _Unity Geometry Sequence Streamer_ to _Unity Geometry Sequence Player_.
 If you still have the old version, we recommend to remove it and then reinstall the new version
 
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Q4Sq8RN46RE?si=Ldk7ETlIh253RPbM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Install the package
 
 > 👇 For installation of the Unity Store Version, see section below
@@ -44,11 +46,11 @@ If you still have the old version, we recommend to remove it and then reinstall 
 
 2. Select the **In Project** category on the left side. Select the **Geometry Sequence Player package** and open the **Sample foldout**. Then click on **Import**. The samples are now being imported into your projects asset folder.
 
-> ⭐ For the Unity Asset Store version, two versions of the Geometry Sequence Player package will appear in the list. One under "Packages - Asset Store and one under "Packages - BuildingVolumes". You need to select the **Building Volumes** version.
+  > ⭐ For the Unity Asset Store version, two versions of the Geometry Sequence Player package will appear in the list. One under "Packages - Asset Store" and one under "Packages - BuildingVolumes". You need to select the **Building Volumes** version.
 
 3. In your assets folder, go to `Samples -> Geometry Sequence Player -> 1.X.X -> Streaming Samples`  and open the Sample scene **01_Basic_Example**
 
-3. Click on the **"Play"-Button** in Unity. You should now see an animated blob.
+4. Click on the **"Play"-Button** in Unity. You should now see an animated blob.
 
 ![Blob](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmVvbXVpazdyanR0dmxyNDhjazNkM3owcnV3NHlwMWFseDRpemoyeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XuN1lmgwobrU8eWgsb/giphy.gif)
 

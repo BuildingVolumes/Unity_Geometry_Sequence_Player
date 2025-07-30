@@ -21,7 +21,9 @@ As this package is distributed as a UPM package, you need to install the samples
 
 1: Open the Package Manager from **Window -> Package Manager**
 
-2: Click on **In Project** on the left side of the window, and then select the **Geometry Sequence Player** package. 
+2: Click on **In Project** on the left side of the window, and then select the **Geometry Sequence Player** package.
+
+ > ⭐ For the Unity Asset Store version, two versions of the Geometry Sequence Player package will appear in the list. One under "Packages - Asset Store" and one under "Packages - BuildingVolumes". You need to select the **Building Volumes** version.
 
 3: Click on the **Samples** tab to the right
 

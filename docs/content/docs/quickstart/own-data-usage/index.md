@@ -23,7 +23,7 @@ toc: true
 
 3. Download the latest converter [binaries for windows here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases) (The file named Geometry_Sequence_Converter_Win64.zip)
 
-4. Unzip, open the converter, and set the **input folder** to the folder containing your sequence. You can optionally set an output folder, otherwise a new folder will be automatically created. Click on **Start Conversion**.
+4. Unzip and open the converter. You might see a warning screen from windows. In that case, click on ***More info*** and then ***run anyways***. Set the **input folder** to the folder containing your sequence. You can optionally set an output folder, otherwise a new folder will be automatically created. Click on **Start Conversion**.
 
     ![The converter](Converter_Start_Threads.png)
 
