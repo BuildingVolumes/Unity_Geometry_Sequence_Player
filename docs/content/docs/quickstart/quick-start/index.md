@@ -13,9 +13,6 @@ weight: 20
 toc: true
 ---
 
-> 👉 The package has recently been renamed from _Unity Geometry Sequence Streamer_ to _Unity Geometry Sequence Player_.
-If you still have the old version, we recommend to remove it and then reinstall the new version
-
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Q4Sq8RN46RE?si=Ldk7ETlIh253RPbM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Install the package
