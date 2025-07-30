@@ -4,7 +4,7 @@
 
 ### A package for Unity to efficiently playback large pointcloud and (textured) mesh sequences
 
-[![Geometry Sequence Player Trailer](https://github.com/user-attachments/assets/502183ce-d2ac-40d2-9211-60332fd4551b)](https://www.youtube.com/watch?v=5HA_HwtjIu0)
+[![Geometry Sequence Player Trailer](https://github.com/user-attachments/assets/49611aea-bf4d-442f-918e-5e82c3ca41ea)](https://www.youtube.com/watch?v=5HA_HwtjIu0)
 
 
 ### [Quickstart](https://buildingvolumes.github.io/Unity_Geometry_Sequence_Player/docs/quickstart/quick-start/) | [Documentation](https://buildingvolumes.github.io/Unity_Geometry_Sequence_Player/) | [Unity Asset Store](https://u3d.as/3suF) | [Unity Forums Thread](https://discussions.unity.com/t/released-geometry-sequence-player/921802) | [License](#license) 
