@@ -32,9 +32,13 @@ Pointclouds                |  Meshes                  | Textured Meshes
 
 ## Install & Usage:
 
-Please see the [documentation website](https://buildingvolumes.github.io/Unity_Geometry_Sequence_Player/docs/quickstart/quick-start/) on how to get started!
+### [Documentation](https://buildingvolumes.github.io/Unity_Geometry_Sequence_Player/docs/quickstart/quick-start/) | [Video Tutorial](https://www.youtube.com/watch?v=Q4Sq8RN46RE)
 
-If you encounter any problems or have questions, please open an issue or visit the [Unity Forums Thread](https://forum.unity.com/threads/released-geometry-sequence-streaming.1453765/)
+Add the package to Unity with this URL: `https://github.com/BuildingVolumes/Geometry_Sequence_Player_Package.git`
+
+## Support
+
+If you encounter any problems or have questions, please open an [issue here](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/issues) or visit the [Unity Forums Thread](https://forum.unity.com/threads/released-geometry-sequence-streaming.1453765/)
 
 ## License:
 
