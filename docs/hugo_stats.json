@@ -242,8 +242,10 @@
     "ids": [
       "-priority-support-unity-asset-store-version",
       "TableOfContents",
+      "advanced-editing-the-pointcloud-shader",
       "android",
       "apple-vision-pro",
+      "assigning-materials",
       "bounded-mode",
       "build-and-ship",
       "clearsequence",
@@ -289,6 +291,7 @@
       "isplaying",
       "loadcurrentsequence",
       "mesh-ply-files",
+      "mesh-sequences",
       "naming",
       "offcanvasNavMain",
       "offcanvasNavMainLabel",
@@ -305,12 +308,15 @@
       "playback-your-sequence",
       "player-component",
       "playfromstart",
+      "pointcloud-emission",
       "pointcloud-ply-files",
+      "pointcloud-sequences",
+      "pointcloud-shape",
+      "pointcloud-size",
       "preparation-for-the-conversion",
       "query",
       "receive-events",
       "sample-01-basic-playback",
-      "sample-01-mesh-playback",
       "sample-02-pointcloud-playback",
       "sample-03-timeline-playback",
       "sample-04-scripting-api",
@@ -335,8 +341,8 @@
       "subscribe-to-event-in-code",
       "subscribe-to-event-in-editor",
       "supported-file-formats",
+      "texture-slot-assignment",
       "texturesimages",
-      "the-samples",
       "toc",
       "unity-asset-store-license",
       "using-the-converter",
@@ -344,7 +350,8 @@
       "version-101-package-only",
       "version-102",
       "version-103",
-      "version-110"
+      "version-110",
+      "version-111"
     ]
   }
 }
