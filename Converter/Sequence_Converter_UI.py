@@ -48,6 +48,7 @@ class ConverterUI:
     generateASTC = True
     convertToSRGB = False
     decimatePointcloud = False
+    generateNormals = False
     decimatePercentage = 100
 
     validModelTypes = ["obj", "3ds", "fbx", "glb", "gltf", "obj", "ply", "ptx", "stl", "xyz", "pts"]
@@ -95,6 +96,10 @@ class ConverterUI:
         self.decimatePercentage = app_data
         self.write_settings_string("decimatePercentage", str(app_data))
 
+    def set_Generate_Normals_enabled_cb(self, sender, app_data):
+        self.generateNormals = app_data
+        self.write_settings_string("generateNormals", str(app_data))
+
     def start_conversion_cb(self):
 
         if(self.isRunning):
@@ -121,7 +126,7 @@ class ConverterUI:
         if(self.generateASTC or self.generateDDS):
             self.totalFileCount += len(self.imagePathList)
         self.processedFileCount = 0
-        self.converter.start_conversion(self.modelPathList, self.imagePathList, self.inputSequencePath, self.get_output_path(), self.resourcesPath, self.single_conversion_finished_cb, dpg.get_value(self.thread_count_ID), self.generateDDS, self.generateASTC, self.convertToSRGB, self.decimatePointcloud, self.decimatePercentage)
+        self.converter.start_conversion(self.modelPathList, self.imagePathList, self.inputSequencePath, self.get_output_path(), self.resourcesPath, self.single_conversion_finished_cb, dpg.get_value(self.thread_count_ID), self.generateDDS, self.generateASTC, self.convertToSRGB, self.decimatePointcloud, self.decimatePercentage, self.generateNormals)
 
         self.info_text_set("Converting...")
         self.set_progressbar(0)
@@ -255,6 +260,7 @@ class ConverterUI:
             self.config['Settings']['ASTC'] = "true"
             self.config['Settings']['decimatePointcloud'] = "false"
             self.config['Settings']['decimatePercentage'] = "100"
+            self.config['Settings']['generateNormals'] = "false"
             self.save_config()
 
         self.config.read(self.configPath)
@@ -383,15 +389,20 @@ class ConverterUI:
 
             dpg.add_spacer(height=30)
 
+            dpg.add_text("Texture settings:")
             dpg.add_checkbox(label="Generate textures for desktop devices (DDS)", default_value=self.generateDDS, callback=self.set_DDS_enabled_cb)
             dpg.add_checkbox(label="Generate textures mobile devices (ASTC)", default_value=self.generateASTC, callback=self.set_ASTC_enabled_cb)
             self.srgb_check_ID = dpg.add_checkbox(label="Convert to SRGB profile", default_value=self.convertToSRGB, callback=self.set_SRGB_enabled_cb)
 
             dpg.add_spacer(height=5)
 
+            dpg.add_text("Pointcloud settings:")
             self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
             dpg.add_same_line()
             self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
+            self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
+
+            dpg.add_spacer(height=5)
 
             self.text_error_log_ID = dpg.add_text("", color=[255, 0, 0], wrap=450)
             self.text_info_log_ID = dpg.add_text("", color=[255, 255, 255], wrap=450)

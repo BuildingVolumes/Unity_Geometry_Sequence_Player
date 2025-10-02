@@ -18,6 +18,7 @@ class MetaData():
     DDS = False
     ASTC = False
     hasUVs = False
+    hasNormals = False
     maxVertexCount = 0
     maxIndiceCount = 0
     maxBounds = [0,0,0,0,0,0]
@@ -40,6 +41,7 @@ class MetaData():
             "DDS" : self.DDS,
             "ASTC" : self.ASTC,
             "hasUVs" : self.hasUVs,
+            "hasNormals" : self.hasNormals,
             "maxVertexCount": self.maxVertexCount,
             "maxIndiceCount" : self.maxIndiceCount,
             "maxBounds" : self.maxBounds,
@@ -54,12 +56,13 @@ class MetaData():
 
         return asDict
         
-    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, bounds, geometryType, hasUV, listIndex):
+    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, bounds, geometryType, hasUV, hasNormals, listIndex):
         
         self.metaDataLock.acquire()
 
         self.geometryType = geometryType
         self.hasUVs = hasUV
+        self.hasNormals = hasNormals
 
         if(vertexCount > self.maxVertexCount):
             self.maxVertexCount = vertexCount

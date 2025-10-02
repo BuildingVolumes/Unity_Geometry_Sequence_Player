@@ -26,6 +26,7 @@ class SequenceConverter:
 
     isPointcloud = False
     hasUVs = False
+    hasNormals = False
     textureDimensions = []
     convertToDDS = False
     convertToASTC = False
@@ -33,12 +34,13 @@ class SequenceConverter:
 
     decimatePointcloud = False
     decimatePercentage = 0
+    generateNormals = False
 
     maxThreads = 8
     loadMeshLock = Lock()
     activeThreads = 0
 
-    def start_conversion(self, model_paths_list, image_paths_list, input_path, output_path, resource_Path, processFinishedCB, threadCount, convertDDS, convertASTC, convertSRGB, decimatePointcloud, decimatePercentage):       
+    def start_conversion(self, model_paths_list, image_paths_list, input_path, output_path, resource_Path, processFinishedCB, threadCount, convertDDS, convertASTC, convertSRGB, decimatePointcloud, decimatePercentage, generateNormals):       
         self.metaData = Sequence_Metadata.MetaData()
         self.terminateProcessing = False
         self.modelPaths = model_paths_list
@@ -52,7 +54,8 @@ class SequenceConverter:
         self.convertToSRGB = convertSRGB
         self.decimatePointcloud = decimatePointcloud
         self.decimatePercentage = decimatePercentage
-        self.debugMode = False # hasattr(sys, 'gettrace') and sys.gettrace() is not None
+        self.generateNormals = generateNormals
+        self.debugMode = hasattr(sys, 'gettrace') and sys.gettrace() is not None
 
         modelCount = len(model_paths_list)
         self.metaData.headerSizes = [None] * modelCount
@@ -193,6 +196,7 @@ class SequenceConverter:
         vertice_colors = None
         faces = None
         uvs = None
+        normals = None
 
         #Load type specific attributes
         if(self.isPointcloud == True):
@@ -205,6 +209,10 @@ class SequenceConverter:
 
             if(self.hasUVs == True):     
                 uvs = ms.current_mesh().vertex_tex_coord_matrix().astype(np.float32)
+
+        normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
+        if(len(normals) > 0):
+            self.hasNormals = True
 
         vertexCount = len(vertices)
 
@@ -251,6 +259,11 @@ class SequenceConverter:
             header += "property float y" + "\n"
             header += "property float z" + "\n"
 
+            if(self.hasNormals == True):
+                header += "property float nx" + "\n"
+                header += "property float ny" + "\n"
+                header += "property float nz" + "\n"
+
             if(self.isPointcloud == True):
                 header += "property uchar red" + "\n"
                 header += "property uchar green" + "\n"
@@ -271,21 +284,32 @@ class SequenceConverter:
 
             f.write(headerASCII)
 
+            byteCombination = []
+
+            verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
+            verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
+            byteCombination.append(verticePositionsBytes)
+
+            if(self.hasNormals == True):
+                verticeNormalsBytes = np.frombuffer(normals.tobytes(), dtype=np.uint8)
+                verticeNormalsBytes = np.reshape(verticeNormalsBytes, (-1, 12))
+                byteCombination.append(verticeNormalsBytes)
+
+
             #Constructing the mesh data, as binary array
             if(self.isPointcloud == True):
                 
-                verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
                 verticeColorsBytes = np.frombuffer(vertice_colors.tobytes(), dtype=np.uint8)
 
                 #Reshape arrays into 2D array, so that the elements of one vertex each occupy one row
-                verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
                 verticeColorsBytes = np.reshape(verticeColorsBytes, (-1, 4))
 
                 #Convert colors from BGRA to RGBA
                 verticeColorsBytes = verticeColorsBytes[..., [2,1,0,3]]
 
-                #Interweave arrays, so that each row contains position + color
-                body = np.concatenate((verticePositionsBytes, verticeColorsBytes), axis = 1)
+                byteCombination.append(verticeColorsBytes)
+
+                body = np.concatenate(byteCombination, axis = 1)
 
                 #Decimate n random elements to reduce points (if enabled)
                 if(self.decimatePointcloud):
@@ -293,24 +317,14 @@ class SequenceConverter:
                     body = body[0:vertexCount]
 
                 #Flatten the array into a 1D array
-                body.ravel()
+                body = body.ravel()
 
             else:
-
-                #Vertices and UVS
-                verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
-
+                
                 if(self.hasUVs == True):
                     uvsBytes = np.frombuffer(uvs.tobytes(), dtype=np.uint8)
-
-                    verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
                     uvsBytes = np.reshape(uvsBytes, (-1, 8))
-                    
-                    body = np.concatenate((verticePositionsBytes, uvsBytes), axis = 1).ravel()
-
-                else:
-                    body = verticePositionsBytes
-
+                    byteCombination.append(uvsBytes)
 
                 #Indices
                 IndiceBytes = np.frombuffer(faces.tobytes(), dtype=np.uint8)
@@ -322,11 +336,14 @@ class SequenceConverter:
                 IndiceBytes = np.concatenate((threes, IndiceBytes), axis = 1)
                 IndiceBytes = IndiceBytes.ravel()
 
-                body = np.concatenate((body, IndiceBytes))
+                body = np.concatenate((byteCombination), axis = 1)
+                body = body.ravel()
+
+                body = np.concatenate((body, IndiceBytes), axis = 0)
 
             f.write(bytes(body))
 
-        self.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.hasUVs, listIndex)
+        self.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.hasUVs, self.hasNormals, listIndex)
 
         self.processFinishedCB(False, "") 
 
