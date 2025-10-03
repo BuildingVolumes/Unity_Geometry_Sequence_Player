@@ -142,13 +142,6 @@ class SequenceConverter:
 
         faceCount = len(ms.current_mesh().face_matrix())
 
-        normals = None
-        normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
-        if(len(normals) > 0 and self.convertSettings.saveNormals):
-            self.convertSettings.hasNormals = True
-        else:
-            self.convertSettings.hasNormals = False
-
         #Is the file a mesh or pointcloud?        
         if(faceCount > 0):
             pointcloud = False
@@ -174,19 +167,24 @@ class SequenceConverter:
                 self.loadMeshLock.release()
                 return
 
+        normals = None
+        normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
+        if(len(normals) > 0 and self.convertSettings.saveNormals):
+            self.convertSettings.hasNormals = True
+        else:
+            self.convertSettings.hasNormals = False
+
         #There is a chance that the file might have wedge tex
         #coordinates which are unsupported in Unity, so we convert them
         #Also we need to ensure that our mesh contains only triangles!
         if(self.convertSettings.isPointcloud == False and ms.current_mesh().has_wedge_tex_coord() == True):
             ms.compute_texcoord_transfer_wedge_to_vertex()     
 
-        # Unity mirrors the X-Axis on import of meshes, so we need to mirror it as well
-        # so that the axis stays consistent
-        ms.apply_matrix_flip_or_swap_axis(flipx = True)
-        
-        # This somehow also flips the faces, so we flip them again
+
+        # We'll later flip the x-Axis. For meshes, this also requires us to flip the face orientation 
         if(self.convertSettings.isPointcloud == False):
             ms.meshing_invert_face_orientation(forceflip = True)
+
 
         # For pointclouds, normals can be estimated
         if(self.convertSettings.generateNormals and self.convertSettings.isPointcloud):
@@ -287,6 +285,10 @@ class SequenceConverter:
             f.write(headerASCII)
 
             byteCombination = []
+
+            #Flip vertices and bytes to match Unity's coordinate system
+            vertices[:,0] *= -1
+            normals[:,0] *= -1
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
             verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
