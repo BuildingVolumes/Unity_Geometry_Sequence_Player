@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.buildingvolumes.geometry_sequence_player": {
-      "version": "file:C:/Dev/Volcapture/Unity_Geometry_Sequence_Player/Geometry_Sequence_Player_Package",
+      "version": "file:../../Geometry_Sequence_Player_Package",
       "depth": 0,
       "source": "local",
       "dependencies": {

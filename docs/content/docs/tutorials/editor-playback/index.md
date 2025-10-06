@@ -68,14 +68,19 @@ Detailed explanation of all the settings and controls inside of the player and s
 
 ![All player settings](editor_playback_stream_component.png)
 
+**Material Settings:**
+
+- **Custom Material** If you want to apply your own material to the sequence, you can set it here. If this field is left empty, a default material will be loaded. This material needs to follow the [guidelines here](/Unity_Geometry_Sequence_Player/docs/tutorials/materials/)
+- **Instantiate Material**: Will only be shown when a custom material is set. With this option, you can control if the material should either be cloned. If it's cloned, changing the origin material in Assets won't effect the sequence material during play
+
 **Pointcloud Settings:** These settings only affect pointcloud based sequences.
 
+- **Point Render Path** Choose which playback path to use. For HDRP, URP and Built-In with Shadergraph installed, we recommend the ***Shadergraph*** path. Otherwise ***Legacy*** should be used.  
 - **Point Size:** Set the size of the individual points with the  modifier (in Unity units).
-- **Point Type:** Set the shape of the points. They can either be displayed as **Quads**, **Circles** or **Splats** (experimental, not recommended)**.
+- **Point Emission:** Set the emission strength of the points.
 
 **Mesh Settings:** These settings only affect mesh based sequences.
 
-- **Mesh Material:** Set an alternative material for your mesh sequence. If left empty, a default unlit material will be used.
 - **Material slots:** Set to which material slots the texture of your sequence should apply. Options are **Main texture**, **Emissive** and **Detail**
 - **Custom texture slots:** If the material should apply to other slots, add them here. Add the name of the texture slot as defined in the shader.
 
