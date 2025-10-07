@@ -46,6 +46,10 @@ class SequenceConverter:
     loadMeshLock = Lock()
     activeThreads = 0
 
+    #Only used for pointcloud normal estimation
+    lastAverageNormal = [0, 0, 0] 
+    firstEstimation = True
+
     def start_conversion(self, convertSettings, processFinishedCB):       
         
         self.convertSettings = convertSettings
@@ -100,13 +104,13 @@ class SequenceConverter:
         else:
             threads = self.convertSettings.maxThreads
 
-        if not self.debugMode:
-            self.modelPool = ThreadPool(processes = threads)
-            self.modelPool.map_async(self.convert_model, self.convertSettings.modelPaths)
-
-        else:
+        if self.debugMode or self.convertSettings.generateNormals:
+            self.firstEstimation = True
             for model in self.convertSettings.modelPaths:
                 self.convert_model(model)
+        else:
+            self.modelPool = ThreadPool(processes = threads)
+            self.modelPool.map_async(self.convert_model, self.convertSettings.modelPaths)
 
     def convert_model(self, file):
 
@@ -188,7 +192,27 @@ class SequenceConverter:
 
         # For pointclouds, normals can be estimated
         if(self.convertSettings.generateNormals and self.convertSettings.isPointcloud):
-            ms.compute_normal_for_point_clouds(k = 10, flipflag = True)           
+            ms.compute_normal_for_point_clouds(k = 10, flipflag = False)
+            normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
+
+            averageNormal = [np.average(normals[:,0]), np.average(normals[:,1]), np.average(normals[:,2])]
+
+            if not self.firstEstimation:
+
+                # Normalize the vectors
+                v1_norm = averageNormal / np.linalg.norm(averageNormal)
+                v2_norm = self.lastAverageNormal / np.linalg.norm(self.lastAverageNormal)
+
+                # Compute the dot product
+                dot_product = np.dot(v1_norm, v2_norm)
+                
+                #Flip normals if the average normal differs too much from the last frame
+                if(dot_product < 0.5):
+                    normals = normals * -1 
+                    averageNormal = np.multiply(averageNormal, -1)
+
+            self.lastAverageNormal = averageNormal
+            self.firstEstimation = False
 
         if(self.terminateProcessing):
             self.processFinishedCB(False, "")
