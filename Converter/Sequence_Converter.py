@@ -192,9 +192,13 @@ class SequenceConverter:
 
         # For pointclouds, normals can be estimated
         if(self.convertSettings.generateNormals and self.convertSettings.isPointcloud):
-            ms.compute_normal_for_point_clouds(k = 10, flipflag = False)
+            ms.compute_normal_for_point_clouds(k = 10, flipflag = False, smoothiter = 10)
             normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
 
+            #Pointcloud normal estimation leads to randomly flipped normals between frames
+
+            #To counteract this, we calculate the average normal direction of the pointcloud, and then compare it to the
+            #last frame's average normal
             averageNormal = [np.average(normals[:,0]), np.average(normals[:,1]), np.average(normals[:,2])]
 
             if not self.firstEstimation:
@@ -203,7 +207,8 @@ class SequenceConverter:
                 v1_norm = averageNormal / np.linalg.norm(averageNormal)
                 v2_norm = self.lastAverageNormal / np.linalg.norm(self.lastAverageNormal)
 
-                # Compute the dot product
+                # The dot product let's us know how if the average normals point in the same direction
+                # (-1 for opposite, 1 for same direction)
                 dot_product = np.dot(v1_norm, v2_norm)
                 
                 #Flip normals if the average normal differs too much from the last frame
@@ -310,7 +315,7 @@ class SequenceConverter:
 
             byteCombination = []
 
-            #Flip vertices and bytes to match Unity's coordinate system
+            #Flip vertice positions and normals to match Unity's coordinate system
             vertices[:,0] *= -1
             normals[:,0] *= -1
 
