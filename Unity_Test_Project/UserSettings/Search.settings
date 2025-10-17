@@ -1,5 +1,6 @@
 trackSelection = true
 refreshSearchWindowsInPlayMode = false
+pickerAdvancedUI = false
 fetchPreview = true
 defaultFlags = 0
 keepOpen = false
@@ -8,6 +9,10 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
+	"picker_window_position_offset.00000000" = "424;58;320;550"
+	"picker_visibility_flags.00000000" = "0"
+	"picker_item_size.00000000" = "1"
+	"picker_inspector.00000000" = "0"
 }
 providers = {
 	performance = {
@@ -55,6 +60,11 @@ providers = {
 		priority = 90
 		defaultAction = null
 	}
+	presets_provider = {
+		active = false
+		priority = -10
+		defaultAction = null
+	}
 }
 objectSelectors = {
 }
@@ -73,3 +83,4 @@ helperWidgetCurrentArea = "all"
 disabledIndexers = ""
 minIndexVariations = 2
 findProviderIndexHelper = true
+itemIconSize = 32

@@ -5,47 +5,53 @@ EditorUserSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 4
   m_ConfigSettings:
-    RecentlyUsedSceneGuid-0:
-      value: 07520756040c080d5b5c0e7746700a4417154178787020637b2f4861e7e3643e
+    GraphicsSettingsInspector_UserSettings:
+      value: 18134705175a055722080a3115371d4a0d55006876786860616b0471b8b07a68ffab74f9ee2a3a30300cea1a11320d0beb1a0c25f7060f494b4cdf1b18f3045e38cb5ad8
       flags: 0
-    RecentlyUsedSceneGuid-1:
+    RecentlyUsedSceneGuid-0:
       value: 005356025156500c0c565b7046265d44424e4f2b287e27617e2d4966bae6663d
       flags: 0
-    RecentlyUsedSceneGuid-2:
+    RecentlyUsedSceneGuid-1:
       value: 05015251000708085c56597011755c44474e1a297b7f253375704436e7b2663e
       flags: 0
-    RecentlyUsedSceneGuid-3:
+    RecentlyUsedSceneGuid-2:
       value: 5553045f5d0c505e0e5d5f7015260f4413154c7c297a7e6029791965e6e26261
       flags: 0
-    RecentlyUsedSceneGuid-4:
-      value: 000955545d010c025f5f5d7041210d441016492c7a7f73677a7f4e60bbb9646c
-      flags: 0
-    RecentlyUsedSceneGuid-5:
+    RecentlyUsedSceneGuid-3:
       value: 50520d5750535f5d0c5d0f7747710d4417161e7e747d2469297a4867e7b16268
       flags: 0
-    RecentlyUsedSceneGuid-6:
+    RecentlyUsedSceneGuid-4:
       value: 54040c02515158595b0d0d7340735d44424f1d79757e70312e7b4a30e0b56d61
       flags: 0
-    RecentlyUsedSceneGuid-7:
+    RecentlyUsedSceneGuid-5:
       value: 0653030355045f0e5b59097012730d4441164828742a77327a794835b6e66d60
       flags: 0
-    RecentlyUsedSceneGuid-8:
+    RecentlyUsedSceneGuid-6:
+      value: 0207500300005c0d5a5a0d7b49250944141540722a2a73657d791b30e0b43268
+      flags: 0
+    RecentlyUsedSceneGuid-7:
       value: 57050c54500559090e5a097042765e4441164f2b792975312f2d4f6ab1b9306b
       flags: 0
+    RecentlyUsedSceneGuid-8:
+      value: 000955545d010c025f5f5d7041210d441016492c7a7f73677a7f4e60bbb9646c
+      flags: 0
     RecentlyUsedSceneGuid-9:
-      value: 0207500300005c0d5a5a0d7b49250944141540722a2a73657d791b30e0b43268
+      value: 0250055250515f5d58590d7416250a44124f1e73282a23332b7b1b30e0b63269
       flags: 0
     UnityEditor.ShaderGraph.Blackboard:
       value: 18135939215a0a5004000b0e15254b524c030a3f2964643d120d1230e9e93a3fd6e826abbd2e2d293c4ead313b08042de6030a0afa240c0d020be94c4baf5e435d8715fa32c70d15d11612dacc11fee5d3c5d1fe9ab1bf968e93e2ffcbc3e7e2f0b3ffe0e8b0be9afbffaeffff8e85dd8390e3949c8899daa7
       flags: 0
     UnityEditor.ShaderGraph.FloatingWindowsLayout2:
-      value: 181344140043005e1a220d3b1f364b524c0c5a27130c293326201334cee5322ca0bd30e8eb293a707b0fd0180b3d0a36fc0d3d04e649500d1002ee0b5dbd1d2c27c00ad113cb1e10e41f1addc80993b9848381a489b2be81868ef6aaada4bbaba4a2e9b9a797d4cfb8a6e4bea1d6c6c8eeccb1d7c9d28b9dea9c819ffcdeede0d0cc8094839c9ac39bd7f1ddf2def7e8d1b8e6ccc4f5c9e5cd8381af
+      value: 181344140043005e1a220d3b1f364b524c0c5a27130c293326201334cee5322ca0bd30e8eb293a707b0fd0180b3d0a36fc0d3d04e649501f031bf84253f22f2514d70ccc19c91333cd1f0fcbd95f8bb286849aba94a9eae7f6d0b2fbeeffe0ecf4fd8afdacbbf9d4e8f5aeffff8e85c9fef9bedec98493dcf8ca9389ef83829d899ac7cf9bdd898b89c3f090bf8d
       flags: 0
     UnityEditor.ShaderGraph.InspectorWindow:
-      value: 18135939215a0a5004000b0e15254b524c030a3f2964643d120d1230e9e93a3fd6e826abbd2e2d293c4ead313b08042de6030a0afa240c0d020be94c4ba75e435d8715fa32c70d15d11612dacc11fee5d3c5d1fe9ab1b7968e93e2ffcbc3e7e2f0b3ffe0e8b0be9afbffaeffff8e85dd8390e59398889d97ea828387ea8286838f84d0cbc4
+      value: 18135939215a0a5004000b0e15254b524c030a3f2964643d120d1230e9e93a3fd6e826abbd2e2d293c4ead313b08042de6030a0afa240c0d020be94c4ba75e435d8715fa32c70d15d11612dacc11fee5d3c5d1fe9ab1b7968e93e2ffcbc3e7e2f0b3ffe0e8b0be9afbffaeffff8e85dd8390e593988899daa7
       flags: 0
     UnityEditor.ShaderGraph.ToggleSettings:
       value: 18135d1527590858060c032302276919051e1a26296a7c362c250e36aea23d2bd2f533ffee3f280a3011e63e083b4365f40b0518f34748020227f31d01fa13071ed72ecc09c11d10ce5b46c8cc11c2e69994d7e5d4e4f5e8ccd0b6fbf0f5fcbaafb3f9d5a5a6f99ee8b2
+      flags: 0
+    lightmappingBakingProfile:
+      value: 51
       flags: 0
     vcSharedLogLevel:
       value: 0d5e400f0650
