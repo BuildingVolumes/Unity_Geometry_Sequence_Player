@@ -54,6 +54,8 @@ class ConverterUI:
     generateNormals = False
     save_normals = False
     decimatePercentage = 100
+    mergePoints = False
+    mergeDistance = 0.001
 
     validModelTypes = ["obj", "3ds", "fbx", "glb", "gltf", "obj", "ply", "ptx", "stl", "xyz", "pts"]
     validImageTypes = ["jpg", "jpeg", "png", "bmp", "tga"]
@@ -106,9 +108,17 @@ class ConverterUI:
         dpg.set_value(self.save_normals_ID, app_data)
         self.write_settings_string("generateNormals", str(app_data))
 
-    def set_normales_enabled_cb(self, sender, app_data):
+    def set_normals_enabled_cb(self, sender, app_data):
         self.save_normals = app_data
         self.write_settings_string("saveNormals", str(app_data))
+
+    def set_Merge_Points_cb(self, sender, app_data):
+        self.mergePoints = app_data
+        self.write_settings_string("mergePoints", str(app_data))
+
+    def set_Merge_Distance_cb(self, sender, app_data):
+        self.mergeDistance = app_data
+        self.write_settings_string("mergeDistance", str(app_data))
 
     def start_conversion_cb(self):
 
@@ -151,6 +161,8 @@ class ConverterUI:
         convertSettings.decimatePercentage = self.decimatePercentage
         convertSettings.saveNormals = self.save_normals
         convertSettings.generateNormals = self.generateNormals
+        convertSettings.mergePoints = self.mergePoints
+        convertSettings.mergeDistance = self.mergeDistance
 
         self.converter.start_conversion(convertSettings, self.single_conversion_finished_cb)
 
@@ -286,8 +298,10 @@ class ConverterUI:
             self.config['Settings']['ASTC'] = "true"
             self.config['Settings']['decimatePointcloud'] = "false"
             self.config['Settings']['decimatePercentage'] = "100"
-            self.config['Settings']['saveNormals'] = "true"
+            self.config['Settings']['saveNormals'] = "false"
             self.config['Settings']['generateNormals'] = "false"
+            self.config['Settings']['mergePoints'] = "false"
+            self.config['Settings']['mergeDistance'] = "0.001"
             self.save_config()
 
         self.config.read(self.configPath)
@@ -430,7 +444,7 @@ class ConverterUI:
             dpg.add_spacer(height=30)
 
             dpg.add_text("General settings:")
-            self.save_normals_ID = dpg.add_checkbox(label="Save normals", default_value=self.save_normals, callback=self.set_normales_enabled_cb)
+            self.save_normals_ID = dpg.add_checkbox(label="Save normals", default_value=self.save_normals, callback=self.set_normals_enabled_cb)
 
             dpg.add_spacer(height=5)
 
@@ -438,6 +452,11 @@ class ConverterUI:
                 self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
                 dpg.add_same_line()
                 self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
+                
+                self.pointcloud_merge_ID = dpg.add_checkbox(label= "Merge Points by Distance: ", default_value=self.mergePoints, callback=self.set_Merge_Points_cb)
+                dpg.add_same_line()
+                self.merge_distance_ID = dpg.add_input_float(label= "", default_value=self.mergeDistance , callback=self.set_Merge_Distance_cb, min_value=0, width= 200)
+
                 self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
             
 

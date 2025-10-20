@@ -29,6 +29,8 @@ class SequenceConverterSettings:
     decimatePercentage = 0
     saveNormals = False
     generateNormals = False
+    mergePoints = False
+    mergeDistance = 0
 
     maxThreads = 8
 
@@ -170,6 +172,10 @@ class SequenceConverter:
                 self.processFinishedCB(True, "Error: Some frames are Pointclouds, some are meshes. Mixed sequences are not allowed!")
                 self.loadMeshLock.release()
                 return
+
+        if(self.convertSettings.mergePoints):
+            ms.apply_filter('meshing_merge_close_vertices', threshold= ml.PercentageValue (self.convertSettings.mergeDistance))
+
 
         normals = None
         normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
