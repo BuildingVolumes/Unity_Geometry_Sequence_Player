@@ -198,7 +198,7 @@ class SequenceConverter:
 
         # For pointclouds, normals can be estimated
         if(self.convertSettings.generateNormals and self.convertSettings.isPointcloud):
-            ms.compute_normal_for_point_clouds(k = 10, flipflag = False, smoothiter = 10)
+            ms.compute_normal_for_point_clouds(k = 10, flipflag = False, smoothiter = 3)
             normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
 
             #Pointcloud normal estimation leads to randomly flipped normals between frames

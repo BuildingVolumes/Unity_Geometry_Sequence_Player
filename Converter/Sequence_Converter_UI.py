@@ -405,7 +405,7 @@ class ConverterUI:
 
     def set_viewport_height(self, pointcloud_settings, texture_settings):
         default_viewport_height = 450
-        pointcloud_settings_height = 50
+        pointcloud_settings_height = 70
         textures_settings_height = 70
 
         height = default_viewport_height
