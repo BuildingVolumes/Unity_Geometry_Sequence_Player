@@ -21,13 +21,15 @@ By default, an **unlit** material will be assigned to the sequence, which means 
 
 ## Mesh sequences
 
+Assigning a custom  material to a mesh sequence works nearly the same as for any other mesh in Unity. All shaders and Shadergraph Materials can be used.
+
 ![Difference between the default material and a custom material](Mesh_Material_Difference.jpg)
 
 ### Assigning materials
 
 ![The material options](Mesh_Material_Options.png)
 
-Assigning a material to a mesh sequence works nearly identical as it is for every other mesh in Unity. But instead of assigning your material in the mesh renderer, you have to go to the **Geometry Sequence Stream** component that can be found on the same Gameobject as your _Geometry Sequence Player_. At the top you can find the **Custom Material** slot, where you can assign your material. If you assign a material there, the **Instantiate Material** checkbox will also show up. This let's you choose if your material should either be copied (instantiated) before applying it, or the material should just be assigned. In the latter case, any changes made to the material file itself will be instantly reflected on the sequence.
+Go to the **Geometry Sequence Stream** component that can be found on the same Gameobject as your _Geometry Sequence Player_. At the top you can find the **Custom Material** slot, where you can assign your material. If you assign a material there, the **Instantiate Material** checkbox will also show up. This let's you choose if your material should either be copied (instantiated) before applying it, or the material should just be assigned. In the latter case, any changes made to the material file itself will be instantly reflected on the sequence.
 
 > ☝️ Please note that  the sequence thumbnail in the editor might not always be updated automatically. Sometimes you need to enter the playmode once so that changes are visible.
 
@@ -36,8 +38,6 @@ Assigning a material to a mesh sequence works nearly identical as it is for ever
 If you have a mesh sequence with textures, you can also control to which texture slot the texture will be applied. By default, textures will always be applied to the Main/Albedo/Diffuse slot, which is defined in the shader as _\_MainTexture_. But you can also apply the texture to any other slot. Either you select one or more predefined slots in the **Apply to texture slots** variable, or you enter the name of the texture slot into the **Custom texture slots** list. This has to be the name of the texture slot as found in the **shader**, not the material! Shader texture slot variables are often prefixed with an _Underscore.
 
 ## Pointcloud sequences
-
-![Pointcloud shadergraph example](shadergraph-distortion.jpg)
 
 Changing the appearance of the pointcloud works very differently compared to meshes, as pointclouds require special shaders for rendering correctly. If you don't assign a custom pointcloud material, there are some predefined settings you can use to easily and quickly the appearance. These settings can be found under the **Geometry Sequence Stream** component and include the **Point Size** as well as the **Point Emission Strength**.
 
@@ -66,6 +66,8 @@ With the pointcloud size parameter, you control the size of each point in Unity 
 The pointcloud material is emissive by default, to give a look similar to an unlit material. You can disable the emission by setting this value to 0, or turn it up higher, to give points a glowing ember like look. You need to enable bloom in your URP/HDRP volume settings to fully benefit from the emissive effect.
 
 ### Customising the pointcloud shader
+
+![Pointcloud shadergraph example](shadergraph-distortion.jpg)
 
 If you don't set a custom material, a default pointcloud material will be loaded that is appropriate for the chosen rendering path. You can create your own Pointcloud shaders to more finely tune the appearance of the points. You will need some experience with writing shaders for Unitys Shaderlab/GLSL and/or Shadergraph. We strongly recommend to take a look at the [Shadergraph Example](/Unity_Geometry_Sequence_Player/docs/tutorials/materials/samples/#sample-05-shadergraph) and clone one of the available pointcloud shaders found under:
 
