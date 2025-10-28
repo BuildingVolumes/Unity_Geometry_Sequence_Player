@@ -15,7 +15,9 @@ toc: true
 
 ## Intro
 
-To enhance the appearance of your sequences, you can apply your own custom Materials and Shaders.
+To enhance the appearance of your sequences, you can apply your own custom Materials and Shaders. If you don't supply a material, an appropriate default material will be automatically assigned.
+
+By default, an **unlit** material will be assigned to the sequence, which means they won't be affected by the scene lighting. Lit materials can either be created by yourself, or you can use one of the materials available under `Packages/Geometry Sequence Player/Runtime/Materials/Your selected Renderpath`
 
 ## Mesh sequences
 
@@ -42,6 +44,12 @@ Changing the appearance of the pointcloud works very differently compared to mes
 ![Pointcloud Settings](Pointcloud_Settings.png)
 
 ### Pointcloud Render Path
+
+The Geometry Sequence Player supports three different render paths:
+
+- **ShaderGraph**
+- **Legacy**
+- **Polyspatial**
 
 In Unity, there are two basic ways to create shaders. You can either code them yourselves, or use the visual coding tool _Shadergraph_. Both paths are supported by the Geometry Sequence Player, and with this option you can manually choose which should be used. For HDRP, URP and built-in (with the shadergraph package installed), we recommend the **Shadergraph** path. If you are more comfortable with coding shaders, or you use the built-in render without the shadergraph package, the **Legacy** render path is right for you. The **Polyspatial** render path should only be used when working with the Apple Vision Pro.
 

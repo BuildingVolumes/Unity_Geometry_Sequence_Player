@@ -72,16 +72,24 @@ And for images:
 
 ### Using the converter
 
-1. Click on ***Select Input Directory*** and select the folder containing the files. ![Converter Select Input](Converter_SelectInput.png)
+1. Click on ***Select Input Directory*** and select the folder containing the files.
+![Converter Select Input](Converter_SelectInput.png)
 
-2. You can now optionally choose an output directory. If you don't choose one, a folder named *converted* will be created inside your sequence directory. ![Converter Select Drive](Converter_SelectOutput.png)
+2. You can now optionally choose an output directory. If you don't choose one, a folder named *converted* will be created inside your sequence directory.
+![Converter Select Drive](Converter_SelectOutput.png)
 
-3. The converter provides some settings which can be used to modify the sequence: ![Converter Select Input](Converter_Options.png)
+3. The converter provides some settings which can be used to modify the sequence:
+![Converter Select Input](Converter_Options.png)
 
-    - **Generate textures for desktop devices (DDS):** This converts the textures into a format for desktop GPUs. Recommended to leave on, even when you only build for mobile devices, otherwise textures won't show up in the Unity editor.
-    - **Generate textures for mobile devices (ASTC):** If you plan to distribute your application on mobile devices (Android, IPhone, Meta Quest, Apple Vision Pro) and use textured meshes, you need to also generate .astc textures. You only need to transfer the .astc textures to your device, but not the .dds textures.
-    - **Convert to SRGB profile:** Activate when your textures look noticably darker / brighter after the conversion
-    - **Decimate Pointcloud:** You can downsize your pointcloud sequence with this option. The value determines the percentage of points left after conversion. E.g. setting the value to 30% will decrease the points of the sequence by 70%.
+- **Save normals:** When enabled, the normals of the mesh or pointcloud sequence are exported. Only recommended to enable if you have custom normals
+- **Pointcloud Settings:** Only affects pointclouds
+  - **Decimate Pointcloud:** You can downsize your pointcloud sequence with this option. The value determines the percentage of points left after conversion. E.g. setting the value to 30% will decrease the points of the sequence by 70%.
+  - **Merge Points by Distance:** Merges points that are close together. The higher the value, the more points will be merged. Useful if the data contains duplicated points
+  - **Estimate Normals:** Pointclouds usually don't come with normals. When this option is enabled, the normals will be reasonably estimated.
+- **Texture Settings** Only affects mesh sequences with textures
+  - **Generate textures for desktop devices (DDS):** This converts the textures into a format for desktop GPUs. Recommended to leave on, even when you only build for mobile devices, otherwise textures won't show up in the Unity editor.
+  - **Generate textures for mobile devices (ASTC):** If you plan to distribute your application on mobile devices (Android, IPhone, Meta Quest, Apple Vision Pro) and use textured meshes, you need to also generate .astc textures. You only need to transfer the .astc textures to your device, but not the .dds textures.
+  - **Convert to SRGB profile:** Activate when your textures look noticably darker / brighter after the conversion
 
 4. When you've set your input/output folders, click on ***Start Conversion***. You can optionally choose the amount of threads used for the conversion, which might come in handy for heavy/large sequences. ![Converter Select Drive](Converter_Start_Threads.png)
 
@@ -93,7 +101,7 @@ If you want to export your data into the correct format directly, without using 
 
 ### Pointcloud .ply files
 
-For .ply files containing pointclouds, use the normal **little endian binary** .ply standard, but be sure to encode the **vertex positions as 32-bit floats** (not doubles), and use the **vertex colors as uchar RGBA**. You always need to provide the red, green, blue and alpha channel, even when your sequence doesn't use alpha values or colors at all. The alpha channel isn't used in the plugin right now, but it allows for faster file reads, as RGBA is the native Unity vertex color format. Don't include any vertex indices! Here is an example of how the header of a ply looks that is correctly formatted:
+For .ply files containing pointclouds, use the normal **little endian binary** .ply standard, but be sure to encode the **vertex positions and normals as 32-bit floats** (not doubles), and use the **vertex colors as uchar RGBA**. You always need to provide the red, green, blue and alpha channel, even when your sequence doesn't use alpha values or colors at all. Normals are optional, and don't have to be used. Here is an example of how the header of a ply looks that is correctly formatted:
 
 ```ply
 ply
@@ -103,6 +111,9 @@ element vertex 50000
 property float x
 property float y
 property float z
+property float nx
+property float ny
+property float nz
 property uchar red
 property uchar green
 property uchar blue
@@ -110,15 +121,15 @@ property uchar alpha
 end_header
 ```
 
-As an example for how the data for a a single vertex (line) could look like this. Three XZY-Float values are followed by four RGBA byte/uchar values:
+As an example for how the data for a a single vertex (line) could look like this. Three float position values are followed by another three normal floats and four RGBA byte/uchar values:
 
 ```ply
-0.323434 0.55133 1.44322 255 255 255 0 
+0.323434 0.55133 1.44322 0.65453 0.23645 0.65372 255 255 255 0 
 ```
 
 ### Mesh .ply files
 
-For .ply files containing meshes, you use the same **little endian binary** format as for the pointclouds, with the **vertex positions encoded as 32-bit floats**. Encode the **face indices as a uchar uint list**, as it is commonly done in the ply format. Only encode **faces as triangles**, so the uchar component of the face indices list should always be "3", the uInts should be 32-bit.
+For .ply files containing meshes, you use the same **little endian binary** format as for the pointclouds, with the **vertex positions encoded as 32-bit floats**. Encode the **face indices as a uchar uint list**, as it is commonly done in the ply format. Only encode **faces as triangles**, so the uchar component of the face indices list should always be "3". Optionally, you can also supplement **per vertex normals** with the nx, ny and nz properties.
 If you want to use textures/UV-coordinates, include the **U and V-coordinates as additional float propertys (property s and property t)** right behind the xyz properties.
 An example header of a correctly formatted mesh ply file with UV-coordinates would look like this:
 
@@ -130,6 +141,9 @@ element vertex 73200
 property float x
 property float y
 property float z
+property float nx
+property float ny
+property float nz
 property float s
 property float t
 element face 138844
@@ -137,13 +151,13 @@ property list uchar uint vertex_indices
 end_header
 ```
 
-The data for a single vertex (line) would look like this. Three XYZ-float values, followed by two float values for the UV-coordinates:
+The data for a single vertex (line) would look like this. Three vertex position floats, followed by three vertex normal floats and two float values for the UV-coordinates:
 
 ```ply
-0.323434 0.55133 1.44322 0.231286 0.692901
+0.323434 0.55133 1.44322 0.65453 0.23645 0.65372 0.231286 0.692901
 ```
 
-The data for a single indice (line) in the index list could look like this:
+The data for a single indice (line) in the index list could look like this. The indice list is appended after the vertex list:
 
 ```ply
 3 56542 56543 56544
@@ -168,6 +182,7 @@ The sequence.json file contains information about your sequence in the following
   "DDS": true, //Does this sequence have .dds textures?
   "ASTC": false, //Does this sequence have .astc textures?
   "hasUVs": true, //If using a mesh, does it have UVs?
+  "hasNormals": false, //Are per-vertex normals used?
   "maxVertexCount": 26545, //The vertice count of the mesh/pointcloud with the highest vertice count in the whole sequence
   "maxIndiceCount": 55423, //The indice count of the mesh/pointcloud with the highest indice count in the whole sequence
   "maxBounds": [325.8575134277344, 295.0, 2103.5478515625, -18.240554809570312, -238.74757385253906, 0], //Bounds of the mesh in the format: MaxboundX, MaxboundY, MaxboundZ, MinboundX, MinboundY, MinboundZ
