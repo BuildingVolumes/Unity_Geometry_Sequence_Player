@@ -419,6 +419,8 @@ class ConverterUI:
 
     def RunUI(self):
 
+        dpg.create_context()
+
         self.InitDefaultPaths()
         self.config = configparser.ConfigParser()
         self.load_config()
@@ -427,15 +429,15 @@ class ConverterUI:
         self.decimatePointcloud = self.read_config_bool("decimatePointcloud")
         self.decimatePercentage = int(self.read_settings_string("decimatePercentage"))
 
-        dpg.create_context()
         dpg.configure_app(manual_callback_management=True)
         dpg.create_viewport(height=500, width=500, title="Geometry Sequence Converter")
         dpg.setup_dearpygui()
-
+        
         with dpg.window(label="Geometry Sequence Converter", tag="main_window", min_size= [500, 500]):
-
+            
             dpg.add_button(label="Select Input Directory", callback=lambda:self.open_input_dir_cb())
             self.text_input_Dir_ID = dpg.add_text(self.inputSequencePath, wrap=450)
+            
             dpg.add_spacer(height=40)
 
             dpg.add_button(label="Select Output Directory", callback=lambda:self.open_output_dir_cb())
@@ -445,21 +447,21 @@ class ConverterUI:
 
             dpg.add_text("General settings:")
             self.save_normals_ID = dpg.add_checkbox(label="Save normals", default_value=self.save_normals, callback=self.set_normals_enabled_cb)
-
+            
             dpg.add_spacer(height=5)
 
             with dpg.collapsing_header(label="Pointcloud settings", default_open=False) as header_pcSettings_ID:
-                self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
-                dpg.add_same_line()
-                self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
                 
-                self.pointcloud_merge_ID = dpg.add_checkbox(label= "Merge Points by Distance: ", default_value=self.mergePoints, callback=self.set_Merge_Points_cb)
-                dpg.add_same_line()
-                self.merge_distance_ID = dpg.add_input_float(label= "", default_value=self.mergeDistance , callback=self.set_Merge_Distance_cb, min_value=0, width= 200)
+                with dpg.group(horizontal=True):
+                    self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
+                    self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
+
+                with dpg.group(horizontal=True):
+                    self.pointcloud_merge_ID = dpg.add_checkbox(label= "Merge Points by Distance: ", default_value=self.mergePoints, callback=self.set_Merge_Points_cb)
+                    self.merge_distance_ID = dpg.add_input_float(label= " ", default_value=self.mergeDistance , callback=self.set_Merge_Distance_cb, min_value=0, width= 200)
 
                 self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
             
-
             dpg.add_spacer(height=5)
 
             with dpg.collapsing_header(label="Texture settings", default_open=False) as header_textureSettings_ID:
@@ -469,15 +471,14 @@ class ConverterUI:
 
             self.text_error_log_ID = dpg.add_text("", color=[255, 0, 0], wrap=450)
             self.text_info_log_ID = dpg.add_text("", color=[255, 255, 255], wrap=450)
-
+            
             self.progress_bar_ID = dpg.add_progress_bar(default_value=0, width=470)
             dpg.add_spacer(height=5)
-            dpg.add_button(label="Start Conversion", callback=lambda:self.start_conversion_cb())
-            dpg.add_same_line()
-            dpg.add_button(label="Cancel", callback=lambda:self.cancel_processing_cb())
-            dpg.add_same_line()
-            self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")
 
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="Start Conversion", callback=lambda:self.start_conversion_cb())
+                dpg.add_button(label="Cancel", callback=lambda:self.cancel_processing_cb())
+                self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")        
 
         dpg.show_viewport()
         dpg.set_primary_window("main_window", True)
@@ -492,7 +493,7 @@ class ConverterUI:
             dpg.render_dearpygui_frame()
             jobs = dpg.get_callback_queue()
             dpg.run_callbacks(jobs)
-
+            
             if(dpg.is_item_left_clicked(header_pcSettings_ID)):
                 pointcloud_header_open = not pointcloud_header_open
                 self.set_viewport_height(pointcloud_header_open, texture_header_open)
@@ -504,7 +505,7 @@ class ConverterUI:
             if(self.conversionFinished):
                 self.finish_conversion()
                 self.conversionFinished = False
-
+            
         # Shutdown threads when they are still running
         self.cancel_processing_cb()
         self.save_config()

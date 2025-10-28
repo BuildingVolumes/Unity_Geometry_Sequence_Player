@@ -103,14 +103,18 @@ class SequenceConverter:
 
         if(len(self.convertSettings.modelPaths) < self.convertSettings.maxThreads):
             threads = len(self.convertSettings.modelPaths)
+        elif self.convertSettings.generateNormals:
+            threads = 1
         else:
             threads = self.convertSettings.maxThreads
 
-        if self.debugMode or self.convertSettings.generateNormals:
+        if self.debugMode:
             self.firstEstimation = True
             for model in self.convertSettings.modelPaths:
-                self.convert_model(model)
+                self.convert_model(model)            
         else:
+            # Process the first model to establish sequence attributes (Pointcloud or Mesh, has UVs? Normals?)
+            self.convert_model(self.convertSettings.modelPaths[0]) 
             self.modelPool = ThreadPool(processes = threads)
             self.modelPool.map_async(self.convert_model, self.convertSettings.modelPaths)
 

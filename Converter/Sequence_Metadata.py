@@ -71,11 +71,11 @@ class MetaData():
             self.maxIndiceCount = indiceCount
 
         for maxBound in range(3):
-            if self.minMaxBounds[maxBound] < bounds.max()[maxBound]:
+            if abs(self.minMaxBounds[maxBound]) < abs(bounds.max()[maxBound]):
                 self.minMaxBounds[maxBound] = bounds.max()[maxBound]
 
         for minBound in range(3):
-            if self.minMaxBounds[minBound + 3] > bounds.min()[minBound]:
+            if abs(self.minMaxBounds[minBound + 3]) < abs(bounds.min()[minBound]):
                 self.minMaxBounds[minBound + 3] = bounds.min()[minBound]
 
         # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
