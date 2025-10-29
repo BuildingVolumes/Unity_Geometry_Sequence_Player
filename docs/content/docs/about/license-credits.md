@@ -27,8 +27,10 @@ The Unity Asset Store version of the package is licensed under the [Unity Standa
 
 ## Credits
 
-The sequences in the showreel, from the landing page and on Github, were created by:
+- This website was created with the **[Doks](https://getdoks.org/)** theme made by **[Thulite](https://thulite.io/)**
 
-["A Windy Day2 by Loic Norgeot](https://sketchfab.com/3d-models/a-windy-day-fb78f4cc938144e6902dd5cff354d525)
+- The sequences in the showreel, from the landing page and on Github, were created by:
 
-["Galactic Incident2 by Loic Norgeot](https://sketchfab.com/3d-models/galactic-incident-397b266af9604b9fbf0a4e5446cf864b)
+  - ["A Windy Day2 by Loic Norgeot](https://sketchfab.com/3d-models/a-windy-day-fb78f4cc938144e6902dd5cff354d525)
+
+  - ["Galactic Incident2 by Loic Norgeot](https://sketchfab.com/3d-models/galactic-incident-397b266af9604b9fbf0a4e5446cf864b)

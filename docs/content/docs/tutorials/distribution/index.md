@@ -55,13 +55,13 @@ Unity Apps can run in three distinct modes on the Apple Vision Pro: A **flat 2D 
 All modes are supported by this plugin. While the **flat mode** runs like an IPhone or IPad application, there are stark differences between the **bounded** and **immersive** mode.
 We generally recommended to use the **immersive** mode whenever you can, due to it's much higher performance capabilities.
 
-### Bounded mode
+### Bounded mode / Polyspatial
 
 The bounded mode lets the users run an app along other apps, inside a limited volume, comparable to a 3D window. Apps running in this mode face many restrictions, including not being able to render their content natively. Unity needs to translate all meshes, textures, materials and shaders to RealityKit equivalents, this is called the **PolySpatial** pipeline. Due to these restrictions, playback performance suffers and works only for smaller sequences. Pointclouds sequences should stay under **50.000 points per frame**, mesh sequences under **30.000 polygons per frame**, and textures at or under **2048x2048 texture resolution** per frame. Additionally, there might be a performance ditch when the sequence starts, especially for pointcloud sequences. These are gradually streamed in to not overload the system.
 
-Bounded mode should be detected automatically by the package. If it does not work and you get playback errors while running on the device, you need to have a volume camera component inside your scene.
+> ℹ️ If you want to use the bounded mode, make sure to set the **Pointcloud Render Path** in the **Geometry Sequence Stream** component to **PolySpatial**, even when you're playing back mesh sequences!
 
-> ☝️ Due to some lower level code in this package, the playback might not work correctly in the AVP simulator
+Due to some lower level code in this package, the playback might not work correctly in the AVP simulator
 
 ### Immersive mode
 

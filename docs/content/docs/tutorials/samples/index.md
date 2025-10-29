@@ -27,11 +27,11 @@ As this package is distributed as a UPM package, you need to install the samples
 
 3: Click on the **Samples** tab to the right
 
-4: **Import** the Sequence Samples. They will now be installed in your projects Asset Directory in the **Assets -> Samples** folder. 
+4: **Import** the Sequence Samples. They will now be installed in your projects Asset Directory in the **Assets -> Samples** folder.
 
 ![Add package with git](package_manager_samples.png)
 
-You can now open the sample scenes to take a look how [mesh playback](#sample-01-basic-playback), [pointcloud playback](#sample-02-pointcloud-playback), [timeline playback](#sample-03-timeline-playback) and the [scripting API](#sample-04-scripting-api) works. 
+You can now open the sample scenes to take a look how [mesh playback](#sample-01-basic-playback), [pointcloud playback](#sample-02-pointcloud-playback), [timeline playback](#sample-03-timeline-playback) and the [scripting API](#sample-04-scripting-api) works.
 
 ## Samples
 
@@ -49,7 +49,7 @@ You can inspect the sequence that has been used at:
 
 `Assets\Samples\Geometry Sequence Player\1.1.0\Sequence Samples\ExampleData\TexturedMesh_Sequence_Sample`
 
-> Try playing around with the media controls on the **Geometry Sequence Player** component 
+> Try playing around with the media controls on the **Geometry Sequence Player** component
 
 [More info](/Unity_Geometry_Sequence_Player/docs/tutorials/playback/)
 
@@ -57,13 +57,13 @@ You can inspect the sequence that has been used at:
 
 ![Cat](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXNtOGozb3d5ZmVwamRjam9zMnBsOXlucXVmemNoanBlN3VlZ2k0YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/rIT9ggXMG212tkuaIE/giphy.gif)
 
-The pointcloud playback sample is identical in setup to the basic playback scene, the only difference is that a **pointcloud sequence** instead of a mesh sequence has been used. 
+The pointcloud playback sample is identical in setup to the basic playback scene, the only difference is that a **pointcloud sequence** instead of a mesh sequence has been used.
 
 You can inspect the sequence at:
 
 `Assets\Samples\Geometry Sequence Player\1.1.0\Sequence Samples\ExampleData\Pointcloud_Sequence_Sample`
 
-> Try changing the **point size** and **point type** options on the **Geometry Sequence Stream** component 
+> Try changing the **point size** and **point type** options on the **Geometry Sequence Stream** component
 
 [More info](/Unity_Geometry_Sequence_Player/docs/tutorials/playback/)
 
@@ -82,7 +82,6 @@ This scene shows how to setup and control sequence playback from the Unity Timel
 
 [More info](/Unity_Geometry_Sequence_Player/docs/tutorials/timeline-integration/)
 
-
 ### Sample 04: Scripting API
 
 ![The API Example Script](API-Example.png)
@@ -90,3 +89,21 @@ This scene shows how to setup and control sequence playback from the Unity Timel
 This scene is mostly identical to the [basic playback scene](#sample-01-basic-playback), but the **Sequence Player** Gameobject additionally contains the **Geometry Sequence API Example** script, which shows how to use the Scripting API for playback control and how to listen to playback events. The script is well-commented, so we recommend to read it to see how the playback API works. Press **Play** to enter the game mode. The sequence should play halfway three times before stopping, just as programmed in the script.
 
 [More info](/Unity_Geometry_Sequence_Player/docs/tutorials/scripting-api/)
+
+### Sample 05: Shadergraph
+
+> ⚠️ You need to have the shadergraph package installed in your project for this example to work
+
+!["An example Shadergraph, which applies a spherical distortion to a pointcloud sequence"](shadergraph-distortion.jpg)
+
+Try to grab the DistortionSphere object in the scene, move it around and watch how it affects the cat!
+
+This scene demonstrates how a custom shadergraph can be used to modify pointcloud sequences. While shaders for mesh sequences work just like they would for any other mesh in Unity, pointclouds differ a lot. They render each point on a different plane, and therefore need some special pre-requesites in the shader to fully work. The Shadergraph sample shows how such a custom shadergraph could work, and how to modifiy the position and scale of points.
+
+To start, open up the Shadergraph at:
+
+`Assets\Samples\Geometry Sequence Player\1.2.0\Sequence Samples\ExampleData\ExtraAssets\Shaders\DistortionShader.shadergraph`
+
+and take a look at the comments there to get an understanding of what makes the shader work. It is strongly recommended to get a basic graps of shader and shadergraph concepts first!
+
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/materials/)

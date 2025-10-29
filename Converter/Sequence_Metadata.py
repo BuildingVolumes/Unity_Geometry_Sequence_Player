@@ -18,9 +18,10 @@ class MetaData():
     DDS = False
     ASTC = False
     hasUVs = False
+    hasNormals = False
     maxVertexCount = 0
     maxIndiceCount = 0
-    maxBounds = [0,0,0,0,0,0]
+    minMaxBounds = [0,0,0,0,0,0]
     textureWidth = 0
     textureHeight = 0
     textureSizeDDS = 0
@@ -40,9 +41,10 @@ class MetaData():
             "DDS" : self.DDS,
             "ASTC" : self.ASTC,
             "hasUVs" : self.hasUVs,
+            "hasNormals" : self.hasNormals,
             "maxVertexCount": self.maxVertexCount,
             "maxIndiceCount" : self.maxIndiceCount,
-            "maxBounds" : self.maxBounds,
+            "maxBounds" : self.minMaxBounds,
             "textureWidth" : self.textureWidth,
             "textureHeight" : self.textureHeight,
             "textureSizeDDS" : self.textureSizeDDS,
@@ -54,12 +56,13 @@ class MetaData():
 
         return asDict
         
-    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, bounds, geometryType, hasUV, listIndex):
+    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, bounds, geometryType, hasUV, hasNormals, listIndex):
         
         self.metaDataLock.acquire()
 
         self.geometryType = geometryType
         self.hasUVs = hasUV
+        self.hasNormals = hasNormals
 
         if(vertexCount > self.maxVertexCount):
             self.maxVertexCount = vertexCount
@@ -68,12 +71,16 @@ class MetaData():
             self.maxIndiceCount = indiceCount
 
         for maxBound in range(3):
-            if self.maxBounds[maxBound] < bounds.max()[maxBound]:
-                self.maxBounds[maxBound] = bounds.max()[maxBound]
+            if abs(self.minMaxBounds[maxBound]) < abs(bounds.max()[maxBound]):
+                self.minMaxBounds[maxBound] = bounds.max()[maxBound]
 
         for minBound in range(3):
-            if self.maxBounds[minBound + 3] > bounds.min()[minBound]:
-                self.maxBounds[minBound + 3] = bounds.min()[minBound]
+            if abs(self.minMaxBounds[minBound + 3]) < abs(bounds.min()[minBound]):
+                self.minMaxBounds[minBound + 3] = bounds.min()[minBound]
+
+        # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
+        self.minMaxBounds[0] *= -1 # Min X
+        self.minMaxBounds[3] *= -1 # Max X
 
         self.headerSizes[listIndex] = headerSize
         self.verticeCounts[listIndex] = vertexCount

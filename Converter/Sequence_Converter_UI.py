@@ -8,6 +8,7 @@ from tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import askdirectory
 import dearpygui.dearpygui as dpg
 from Sequence_Converter import SequenceConverter
+from Sequence_Converter import SequenceConverterSettings
 
 class ConverterUI:
 
@@ -21,6 +22,8 @@ class ConverterUI:
     srgb_check_ID = 0
     pointcloud_decimation_ID = 0
     decimation_percentage_ID = 0
+    save_normals_ID = 0
+    generate_normals_ID = 0
 
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE EXECUTABLE ++++++++++++++++++++++++++++++++++
     #Use this prompt in the terminal to package this script into a single executable for your system
@@ -48,7 +51,11 @@ class ConverterUI:
     generateASTC = True
     convertToSRGB = False
     decimatePointcloud = False
+    generateNormals = False
+    save_normals = False
     decimatePercentage = 100
+    mergePoints = False
+    mergeDistance = 0.001
 
     validModelTypes = ["obj", "3ds", "fbx", "glb", "gltf", "obj", "ply", "ptx", "stl", "xyz", "pts"]
     validImageTypes = ["jpg", "jpeg", "png", "bmp", "tga"]
@@ -95,6 +102,24 @@ class ConverterUI:
         self.decimatePercentage = app_data
         self.write_settings_string("decimatePercentage", str(app_data))
 
+    def set_Generate_Normals_enabled_cb(self, sender, app_data):
+        self.generateNormals = app_data
+        self.save_normals = app_data
+        dpg.set_value(self.save_normals_ID, app_data)
+        self.write_settings_string("generateNormals", str(app_data))
+
+    def set_normals_enabled_cb(self, sender, app_data):
+        self.save_normals = app_data
+        self.write_settings_string("saveNormals", str(app_data))
+
+    def set_Merge_Points_cb(self, sender, app_data):
+        self.mergePoints = app_data
+        self.write_settings_string("mergePoints", str(app_data))
+
+    def set_Merge_Distance_cb(self, sender, app_data):
+        self.mergeDistance = app_data
+        self.write_settings_string("mergeDistance", str(app_data))
+
     def start_conversion_cb(self):
 
         if(self.isRunning):
@@ -121,7 +146,25 @@ class ConverterUI:
         if(self.generateASTC or self.generateDDS):
             self.totalFileCount += len(self.imagePathList)
         self.processedFileCount = 0
-        self.converter.start_conversion(self.modelPathList, self.imagePathList, self.inputSequencePath, self.get_output_path(), self.resourcesPath, self.single_conversion_finished_cb, dpg.get_value(self.thread_count_ID), self.generateDDS, self.generateASTC, self.convertToSRGB, self.decimatePointcloud, self.decimatePercentage)
+
+        convertSettings = SequenceConverterSettings()
+        convertSettings.modelPaths = self.modelPathList
+        convertSettings.imagePaths = self.imagePathList
+        convertSettings.inputPath = self.inputSequencePath
+        convertSettings.outputPath = self.get_output_path()
+        convertSettings.resourcePath = self.resourcesPath
+        convertSettings.maxThreads = dpg.get_value(self.thread_count_ID)
+        convertSettings.convertToDDS = self.generateDDS
+        convertSettings.convertToASTC = self.generateASTC
+        convertSettings.convertToSRGB = self.convertToSRGB
+        convertSettings.decimatePointcloud = self.decimatePointcloud
+        convertSettings.decimatePercentage = self.decimatePercentage
+        convertSettings.saveNormals = self.save_normals
+        convertSettings.generateNormals = self.generateNormals
+        convertSettings.mergePoints = self.mergePoints
+        convertSettings.mergeDistance = self.mergeDistance
+
+        self.converter.start_conversion(convertSettings, self.single_conversion_finished_cb)
 
         self.info_text_set("Converting...")
         self.set_progressbar(0)
@@ -255,6 +298,10 @@ class ConverterUI:
             self.config['Settings']['ASTC'] = "true"
             self.config['Settings']['decimatePointcloud'] = "false"
             self.config['Settings']['decimatePercentage'] = "100"
+            self.config['Settings']['saveNormals'] = "false"
+            self.config['Settings']['generateNormals'] = "false"
+            self.config['Settings']['mergePoints'] = "false"
+            self.config['Settings']['mergeDistance'] = "0.001"
             self.save_config()
 
         self.config.read(self.configPath)
@@ -356,8 +403,23 @@ class ConverterUI:
     def set_SRGB_enabled(self, enabled):
         dpg.set_value(self.srgb_check_ID, enabled)
 
+    def set_viewport_height(self, pointcloud_settings, texture_settings):
+        default_viewport_height = 450
+        pointcloud_settings_height = 70
+        textures_settings_height = 70
+
+        height = default_viewport_height
+        if(pointcloud_settings):
+            height += pointcloud_settings_height
+        if(texture_settings):
+            height += textures_settings_height
+
+        dpg.set_viewport_height(height)
+
 
     def RunUI(self):
+
+        dpg.create_context()
 
         self.InitDefaultPaths()
         self.config = configparser.ConfigParser()
@@ -367,15 +429,15 @@ class ConverterUI:
         self.decimatePointcloud = self.read_config_bool("decimatePointcloud")
         self.decimatePercentage = int(self.read_settings_string("decimatePercentage"))
 
-        dpg.create_context()
         dpg.configure_app(manual_callback_management=True)
-        dpg.create_viewport(height=480, width=500, title="Geometry Sequence Converter")
+        dpg.create_viewport(height=500, width=500, title="Geometry Sequence Converter")
         dpg.setup_dearpygui()
-
+        
         with dpg.window(label="Geometry Sequence Converter", tag="main_window", min_size= [500, 500]):
-
+            
             dpg.add_button(label="Select Input Directory", callback=lambda:self.open_input_dir_cb())
             self.text_input_Dir_ID = dpg.add_text(self.inputSequencePath, wrap=450)
+            
             dpg.add_spacer(height=40)
 
             dpg.add_button(label="Select Output Directory", callback=lambda:self.open_output_dir_cb())
@@ -383,42 +445,67 @@ class ConverterUI:
 
             dpg.add_spacer(height=30)
 
-            dpg.add_checkbox(label="Generate textures for desktop devices (DDS)", default_value=self.generateDDS, callback=self.set_DDS_enabled_cb)
-            dpg.add_checkbox(label="Generate textures mobile devices (ASTC)", default_value=self.generateASTC, callback=self.set_ASTC_enabled_cb)
-            self.srgb_check_ID = dpg.add_checkbox(label="Convert to SRGB profile", default_value=self.convertToSRGB, callback=self.set_SRGB_enabled_cb)
-
+            dpg.add_text("General settings:")
+            self.save_normals_ID = dpg.add_checkbox(label="Save normals", default_value=self.save_normals, callback=self.set_normals_enabled_cb)
+            
             dpg.add_spacer(height=5)
 
-            self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
-            dpg.add_same_line()
-            self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
+            with dpg.collapsing_header(label="Pointcloud settings", default_open=False) as header_pcSettings_ID:
+                
+                with dpg.group(horizontal=True):
+                    self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
+                    self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
+
+                with dpg.group(horizontal=True):
+                    self.pointcloud_merge_ID = dpg.add_checkbox(label= "Merge Points by Distance: ", default_value=self.mergePoints, callback=self.set_Merge_Points_cb)
+                    self.merge_distance_ID = dpg.add_input_float(label= " ", default_value=self.mergeDistance , callback=self.set_Merge_Distance_cb, min_value=0, width= 200)
+
+                self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
+            
+            dpg.add_spacer(height=5)
+
+            with dpg.collapsing_header(label="Texture settings", default_open=False) as header_textureSettings_ID:
+                dpg.add_checkbox(label="Generate textures for desktop devices (DDS)", default_value=self.generateDDS, callback=self.set_DDS_enabled_cb)
+                dpg.add_checkbox(label="Generate textures mobile devices (ASTC)", default_value=self.generateASTC, callback=self.set_ASTC_enabled_cb)
+                self.srgb_check_ID = dpg.add_checkbox(label="Convert to SRGB profile", default_value=self.convertToSRGB, callback=self.set_SRGB_enabled_cb)            
 
             self.text_error_log_ID = dpg.add_text("", color=[255, 0, 0], wrap=450)
             self.text_info_log_ID = dpg.add_text("", color=[255, 255, 255], wrap=450)
-
+            
             self.progress_bar_ID = dpg.add_progress_bar(default_value=0, width=470)
             dpg.add_spacer(height=5)
-            dpg.add_button(label="Start Conversion", callback=lambda:self.start_conversion_cb())
-            dpg.add_same_line()
-            dpg.add_button(label="Cancel", callback=lambda:self.cancel_processing_cb())
-            dpg.add_same_line()
-            self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")
 
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="Start Conversion", callback=lambda:self.start_conversion_cb())
+                dpg.add_button(label="Cancel", callback=lambda:self.cancel_processing_cb())
+                self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")        
 
         dpg.show_viewport()
         dpg.set_primary_window("main_window", True)
+        self.set_viewport_height(False, False)
 
         self.set_input_files(self.read_path_string("input"))
+
+        pointcloud_header_open = False
+        texture_header_open = False
 
         while dpg.is_dearpygui_running():
             dpg.render_dearpygui_frame()
             jobs = dpg.get_callback_queue()
             dpg.run_callbacks(jobs)
+            
+            if(dpg.is_item_left_clicked(header_pcSettings_ID)):
+                pointcloud_header_open = not pointcloud_header_open
+                self.set_viewport_height(pointcloud_header_open, texture_header_open)
+            
+            if(dpg.is_item_left_clicked(header_textureSettings_ID)):
+                texture_header_open = not texture_header_open
+                self.set_viewport_height(pointcloud_header_open, texture_header_open)
 
             if(self.conversionFinished):
                 self.finish_conversion()
                 self.conversionFinished = False
-
+            
         # Shutdown threads when they are still running
         self.cancel_processing_cb()
         self.save_config()

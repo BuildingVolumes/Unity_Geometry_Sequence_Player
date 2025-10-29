@@ -8,24 +8,18 @@ from multiprocessing.pool import ThreadPool
 import Sequence_Metadata
 from PIL import Image
 
-class SequenceConverter:
-
-    terminateProcessing = False
-    debugMode = False
-    metaData = Sequence_Metadata.MetaData()
-
+class SequenceConverterSettings:
     modelPaths = []
     imagePaths = []
-    modelPool = None
-    texturePool = None
-
-    processFinishedCB = None
+    metaData = Sequence_Metadata.MetaData()
     inputPath = ""
     outputPath = ""
     resourcePath = ""
 
     isPointcloud = False
     hasUVs = False
+    hasNormals = False
+    saveNormals = False
     textureDimensions = []
     convertToDDS = False
     convertToASTC = False
@@ -33,37 +27,46 @@ class SequenceConverter:
 
     decimatePointcloud = False
     decimatePercentage = 0
+    saveNormals = False
+    generateNormals = False
+    mergePoints = False
+    mergeDistance = 0
 
     maxThreads = 8
+
+class SequenceConverter:
+
+    convertSettings = SequenceConverterSettings()
+    terminateProcessing = False
+    debugMode = False
+    
+    modelPool = None
+    texturePool = None
+
+    processFinishedCB = None
+    
     loadMeshLock = Lock()
     activeThreads = 0
 
-    def start_conversion(self, model_paths_list, image_paths_list, input_path, output_path, resource_Path, processFinishedCB, threadCount, convertDDS, convertASTC, convertSRGB, decimatePointcloud, decimatePercentage):       
-        self.metaData = Sequence_Metadata.MetaData()
+    #Only used for pointcloud normal estimation
+    lastAverageNormal = [0, 0, 0] 
+    firstEstimation = True
+
+    def start_conversion(self, convertSettings, processFinishedCB):       
+        
+        self.convertSettings = convertSettings
         self.terminateProcessing = False
-        self.modelPaths = model_paths_list
-        self.imagePaths = image_paths_list
-        self.inputPath = input_path
-        self.outputPath = output_path
-        self.resourcePath = resource_Path
         self.processFinishedCB = processFinishedCB
-        self.convertToDDS = convertDDS
-        self.convertToASTC = convertASTC
-        self.convertToSRGB = convertSRGB
-        self.decimatePointcloud = decimatePointcloud
-        self.decimatePercentage = decimatePercentage
-        self.debugMode = False # hasattr(sys, 'gettrace') and sys.gettrace() is not None
+        self.debugMode = hasattr(sys, 'gettrace') and sys.gettrace() is not None
 
-        modelCount = len(model_paths_list)
-        self.metaData.headerSizes = [None] * modelCount
-        self.metaData.verticeCounts = [None] * modelCount
-        self.metaData.indiceCounts = [None] * modelCount
-
-        self.maxThreads = threadCount
+        modelCount = len(self.convertSettings.modelPaths)
+        self.convertSettings.metaData.headerSizes = [None] * modelCount
+        self.convertSettings.metaData.verticeCounts = [None] * modelCount
+        self.convertSettings.metaData.indiceCounts = [None] * modelCount
     
-        if(len(model_paths_list) > 0):
+        if(len(self.convertSettings.modelPaths) > 0):
             self.process_models()
-        if(len(image_paths_list) > 0):
+        if(len(self.convertSettings.imagePaths) > 0):
             self.process_images()
 
     def terminate_conversion(self):
@@ -94,26 +97,30 @@ class SequenceConverter:
             self.write_metadata()
 
     def write_metadata(self):
-        self.metaData.write_metaData(self.outputPath)
+        self.convertSettings.metaData.write_metaData(self.convertSettings.outputPath)
 
     def process_models(self):
 
-        if(len(self.modelPaths) < self.maxThreads):
-            threads = len(self.modelPaths)
+        if(len(self.convertSettings.modelPaths) < self.convertSettings.maxThreads):
+            threads = len(self.convertSettings.modelPaths)
+        elif self.convertSettings.generateNormals:
+            threads = 1
         else:
-            threads = self.maxThreads
+            threads = self.convertSettings.maxThreads
 
-        if not self.debugMode:
+        if self.debugMode:
+            self.firstEstimation = True
+            for model in self.convertSettings.modelPaths:
+                self.convert_model(model)            
+        else:
+            # Process the first model to establish sequence attributes (Pointcloud or Mesh, has UVs? Normals?)
+            self.convert_model(self.convertSettings.modelPaths[0]) 
             self.modelPool = ThreadPool(processes = threads)
-            self.modelPool.map_async(self.convert_model, self.modelPaths)
-
-        else:
-            for model in self.modelPaths:
-                self.convert_model(model)
+            self.modelPool.map_async(self.convert_model, self.convertSettings.modelPaths)
 
     def convert_model(self, file):
 
-        listIndex = self.modelPaths.index(file)
+        listIndex = self.convertSettings.modelPaths.index(file)
 
         if(self.terminateProcessing):
             self.processFinishedCB(False, "")
@@ -123,8 +130,8 @@ class SequenceConverter:
         splitted_file.pop() # We remove the last element, which is the file ending
         file_name = ''.join(splitted_file)
 
-        inputfile = self.inputPath + "\\"+ file
-        outputfile =  self.outputPath + "\\" + file_name + ".ply"
+        inputfile = self.convertSettings.inputPath + "\\"+ file
+        outputfile =  self.convertSettings.outputPath + "\\" + file_name + ".ply"
 
         ms = ml.MeshSet()
 
@@ -157,32 +164,70 @@ class SequenceConverter:
             uvs = False
 
         if(listIndex == 0):
-            self.isPointcloud = pointcloud
-            self.hasUVs = uvs
+            self.convertSettings.isPointcloud = pointcloud
+            self.convertSettings.hasUVs = uvs
         else:
-            if(self.hasUVs != uvs):
+            if(self.convertSettings.hasUVs != uvs):
                 # The sequence has different attributes, which is not allowed
                 self.processFinishedCB(True, "Error: Some frames with UVs, some without. All frames need to be consistent with this attribute!")
                 self.loadMeshLock.release()
                 return
-            if(self.isPointcloud != pointcloud):
+            if(self.convertSettings.isPointcloud != pointcloud):
                 self.processFinishedCB(True, "Error: Some frames are Pointclouds, some are meshes. Mixed sequences are not allowed!")
                 self.loadMeshLock.release()
                 return
 
+        if(self.convertSettings.mergePoints):
+            ms.apply_filter('meshing_merge_close_vertices', threshold= ml.PercentageValue (self.convertSettings.mergeDistance))
+
+
+        normals = None
+        normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
+        if(len(normals) > 0 and self.convertSettings.saveNormals):
+            self.convertSettings.hasNormals = True
+        else:
+            self.convertSettings.hasNormals = False
+
         #There is a chance that the file might have wedge tex
         #coordinates which are unsupported in Unity, so we convert them
         #Also we need to ensure that our mesh contains only triangles!
-        if(self.isPointcloud == False and ms.current_mesh().has_wedge_tex_coord() == True):
+        if(self.convertSettings.isPointcloud == False and ms.current_mesh().has_wedge_tex_coord() == True):
             ms.compute_texcoord_transfer_wedge_to_vertex()     
 
-        # Unity mirrors the X-Axis on import of meshes, so we need to mirror it as well
-        # so that the axis stays consistent
-        ms.apply_matrix_flip_or_swap_axis(flipx = True)
-        
-        # This somehow also flips the faces, so we flip them again
-        if(self.isPointcloud == False):
-            ms.meshing_invert_face_orientation(forceflip = True)            
+
+        # We'll later flip the x-Axis. For meshes, this also requires us to flip the face orientation 
+        if(self.convertSettings.isPointcloud == False):
+            ms.meshing_invert_face_orientation(forceflip = True)
+
+
+        # For pointclouds, normals can be estimated
+        if(self.convertSettings.generateNormals and self.convertSettings.isPointcloud):
+            ms.compute_normal_for_point_clouds(k = 10, flipflag = False, smoothiter = 3)
+            normals = ms.current_mesh().vertex_normal_matrix().astype(np.float32)
+
+            #Pointcloud normal estimation leads to randomly flipped normals between frames
+
+            #To counteract this, we calculate the average normal direction of the pointcloud, and then compare it to the
+            #last frame's average normal
+            averageNormal = [np.average(normals[:,0]), np.average(normals[:,1]), np.average(normals[:,2])]
+
+            if not self.firstEstimation:
+
+                # Normalize the vectors
+                v1_norm = averageNormal / np.linalg.norm(averageNormal)
+                v2_norm = self.lastAverageNormal / np.linalg.norm(self.lastAverageNormal)
+
+                # The dot product let's us know how if the average normals point in the same direction
+                # (-1 for opposite, 1 for same direction)
+                dot_product = np.dot(v1_norm, v2_norm)
+                
+                #Flip normals if the average normal differs too much from the last frame
+                if(dot_product < 0.5):
+                    normals = normals * -1 
+                    averageNormal = np.multiply(averageNormal, -1)
+
+            self.lastAverageNormal = averageNormal
+            self.firstEstimation = False
 
         if(self.terminateProcessing):
             self.processFinishedCB(False, "")
@@ -195,7 +240,7 @@ class SequenceConverter:
         uvs = None
 
         #Load type specific attributes
-        if(self.isPointcloud == True):
+        if(self.convertSettings.isPointcloud == True):
             vertices = ms.current_mesh().vertex_matrix().astype(np.float32)
             vertice_colors = ms.current_mesh().vertex_color_array()
         
@@ -203,9 +248,11 @@ class SequenceConverter:
             vertices = ms.current_mesh().vertex_matrix().astype(np.float32)
             faces = ms.current_mesh().face_matrix()
 
-            if(self.hasUVs == True):     
+            if(self.convertSettings.hasUVs == True):     
                 uvs = ms.current_mesh().vertex_tex_coord_matrix().astype(np.float32)
 
+        #Check if the mesh has pre-existing normals
+        
         vertexCount = len(vertices)
 
         if(faces is not None):
@@ -215,10 +262,10 @@ class SequenceConverter:
 
         bounds = ms.current_mesh().bounding_box()
 
-        if(self.isPointcloud == True):
+        if(self.convertSettings.isPointcloud == True):
             geoType = Sequence_Metadata.GeometryType.point
         else:
-            if(self.hasUVs == False):
+            if(self.convertSettings.hasUVs == False):
                 geoType = Sequence_Metadata.GeometryType.mesh
             else:
                 geoType = Sequence_Metadata.GeometryType.texturedMesh
@@ -238,8 +285,8 @@ class SequenceConverter:
         with open(outputfile, 'wb') as f:
 
             #If pointcloud decimation is enabled, calculate how many points were going to write
-            if(self.decimatePointcloud):
-                vertexCount = int(len(vertices) * (self.decimatePercentage / 100))
+            if(self.convertSettings.decimatePointcloud):
+                vertexCount = int(len(vertices) * (self.convertSettings.decimatePercentage / 100))
 
             #constructing the ascii header
             header = "ply" + "\n"
@@ -251,14 +298,19 @@ class SequenceConverter:
             header += "property float y" + "\n"
             header += "property float z" + "\n"
 
-            if(self.isPointcloud == True):
+            if(self.convertSettings.hasNormals):
+                header += "property float nx" + "\n"
+                header += "property float ny" + "\n"
+                header += "property float nz" + "\n"
+
+            if(self.convertSettings.isPointcloud == True):
                 header += "property uchar red" + "\n"
                 header += "property uchar green" + "\n"
                 header += "property uchar blue" + "\n"
                 header += "property uchar alpha" + "\n"
             
             else:
-                if(self.hasUVs == True):
+                if(self.convertSettings.hasUVs == True):
                     header += "property float s" + "\n" 
                     header += "property float t" + "\n"
                 header += "element face " + str(len(faces)) + "\n"
@@ -271,46 +323,51 @@ class SequenceConverter:
 
             f.write(headerASCII)
 
+            byteCombination = []
+
+            #Flip vertice positions and normals to match Unity's coordinate system
+            vertices[:,0] *= -1
+            normals[:,0] *= -1
+
+            verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
+            verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
+            byteCombination.append(verticePositionsBytes)
+
+            if(self.convertSettings.hasNormals):
+                verticeNormalsBytes = np.frombuffer(normals.tobytes(), dtype=np.uint8)
+                verticeNormalsBytes = np.reshape(verticeNormalsBytes, (-1, 12))
+                byteCombination.append(verticeNormalsBytes)
+
+
             #Constructing the mesh data, as binary array
-            if(self.isPointcloud == True):
+            if(self.convertSettings.isPointcloud == True):
                 
-                verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
                 verticeColorsBytes = np.frombuffer(vertice_colors.tobytes(), dtype=np.uint8)
 
                 #Reshape arrays into 2D array, so that the elements of one vertex each occupy one row
-                verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
                 verticeColorsBytes = np.reshape(verticeColorsBytes, (-1, 4))
 
                 #Convert colors from BGRA to RGBA
                 verticeColorsBytes = verticeColorsBytes[..., [2,1,0,3]]
 
-                #Interweave arrays, so that each row contains position + color
-                body = np.concatenate((verticePositionsBytes, verticeColorsBytes), axis = 1)
+                byteCombination.append(verticeColorsBytes)
+
+                body = np.concatenate(byteCombination, axis = 1)
 
                 #Decimate n random elements to reduce points (if enabled)
-                if(self.decimatePointcloud):
+                if(self.convertSettings.decimatePointcloud):
                     np.random.shuffle(body)
                     body = body[0:vertexCount]
 
                 #Flatten the array into a 1D array
-                body.ravel()
+                body = body.ravel()
 
             else:
-
-                #Vertices and UVS
-                verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
-
-                if(self.hasUVs == True):
+                
+                if(self.convertSettings.hasUVs == True):
                     uvsBytes = np.frombuffer(uvs.tobytes(), dtype=np.uint8)
-
-                    verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
                     uvsBytes = np.reshape(uvsBytes, (-1, 8))
-                    
-                    body = np.concatenate((verticePositionsBytes, uvsBytes), axis = 1).ravel()
-
-                else:
-                    body = verticePositionsBytes
-
+                    byteCombination.append(uvsBytes)
 
                 #Indices
                 IndiceBytes = np.frombuffer(faces.tobytes(), dtype=np.uint8)
@@ -322,11 +379,14 @@ class SequenceConverter:
                 IndiceBytes = np.concatenate((threes, IndiceBytes), axis = 1)
                 IndiceBytes = IndiceBytes.ravel()
 
-                body = np.concatenate((body, IndiceBytes))
+                body = np.concatenate((byteCombination), axis = 1)
+                body = body.ravel()
+
+                body = np.concatenate((body, IndiceBytes), axis = 0)
 
             f.write(bytes(body))
 
-        self.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.hasUVs, listIndex)
+        self.convertSettings.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.convertSettings.hasUVs, self.convertSettings.hasNormals, listIndex)
 
         self.processFinishedCB(False, "") 
 
@@ -335,18 +395,18 @@ class SequenceConverter:
 
     def process_images(self):
 
-        if(len(self.imagePaths) < self.maxThreads):
-            threads = len(self.imagePaths)
+        if(len(self.convertSettings.imagePaths) < self.convertSettings.maxThreads):
+            threads = len(self.convertSettings.imagePaths)
         else:
-            threads = self.maxThreads
+            threads = self.convertSettings.maxThreads
 
-        self.texturePool = ThreadPool(processes= threads)
+        self.convertSettings.texturePool = ThreadPool(processes= threads)
 
         #Read the first image to get the dimensions
-        self.convert_image(self.imagePaths[0])
-        self.imagePaths.pop(0)
+        self.convert_image(self.convertSettings.imagePaths[0])
+        self.convertSettings.imagePaths.pop(0)
 
-        self.texturePool.map_async(self.convert_image, self.imagePaths)
+        self.texturePool.map_async(self.convert_image, self.convertSettings.imagePaths)
 
     def convert_image(self, file):
 
@@ -354,7 +414,7 @@ class SequenceConverter:
             self.processFinishedCB(False, "")
             return
 
-        listIndex = self.imagePaths.index(file)
+        listIndex = self.convertSettings.imagePaths.index(file)
 
         splitted_file = file.split(".")
         file_name = splitted_file[0]
@@ -365,42 +425,42 @@ class SequenceConverter:
         sizeDDS = 0
         sizeASTC = 0
 
-        if(self.convertToDDS):
-            outputfileDDS =  self.outputPath + "\\" + file_name + ".dds"
-            cmd = self.resourcePath + "texconv " + "\"" + inputfile + "\"" + " -o " + "\"" + self.outputPath + "\"" +" -m 1 -f DXT1 -y -nologo"
-            if(self.convertToSRGB):
+        if(self.convertSettings.convertToDDS):
+            outputfileDDS =  self.convertSettings.outputPath + "\\" + file_name + ".dds"
+            cmd = self.convertSettings.resourcePath + "texconv " + "\"" + inputfile + "\"" + " -o " + "\"" + self.convertSettings.outputPath + "\"" +" -m 1 -f DXT1 -y -nologo"
+            if(self.convertSettings.convertToSRGB):
                 cmd += " -srgbo" 
             if(subprocess.run(cmd).returncode != 0):
                 self.processFinishedCB(True, "Error converting DDS texture: " + inputfile)
                 return
         
-        if(self.convertToASTC):
-            outputfileASCT =  self.outputPath + "\\" + file_name + ".astc"
-            cmd = self.resourcePath + "astcenc -cl " + "\"" + inputfile + "\"" + " " + "\"" + outputfileASCT + "\"" + " 6x6 -medium -silent"
+        if(self.convertSettings.convertToASTC):
+            outputfileASCT =  self.convertSettings.outputPath + "\\" + file_name + ".astc"
+            cmd = self.convertSettings.resourcePath + "astcenc -cl " + "\"" + inputfile + "\"" + " " + "\"" + outputfileASCT + "\"" + " 6x6 -medium -silent"
             if(subprocess.run(cmd).returncode != 0):
                 self.processFinishedCB(True, "Error converting ASTC texture: " + inputfile)
                 return
 
         # Write the metadata once per sequence
         if(listIndex == 0):
-            if(self.convertToDDS):
+            if(self.convertSettings.convertToDDS):
                 sizeDDS = os.path.getsize(outputfileDDS) - 128 #128 = DDS header size
-            if(self.convertToASTC):
+            if(self.convertSettings.convertToASTC):
                 sizeASTC = os.path.getsize(outputfileASCT) - 16 #20 = ASTC header size
 
-            if(len(self.imagePaths) == 1):
+            if(len(self.convertSettings.imagePaths) == 1):
                 textureMode = Sequence_Metadata.TextureMode.single
-            if(len(self.imagePaths) > 1):
+            if(len(self.convertSettings.imagePaths) > 1):
                 textureMode = Sequence_Metadata.TextureMode.perFrame
 
-            self.textureDimensions = self.get_image_dimensions(inputfile)
-            self.metaData.set_metadata_texture(self.convertToDDS, self.convertToASTC, self.textureDimensions[0], self.textureDimensions[1], sizeDDS, sizeASTC, textureMode)
+            self.convertSettings.textureDimensions = self.get_image_dimensions(inputfile)
+            self.convertSettings.metaData.set_metadata_texture(self.convertSettings.convertToDDS, self.convertSettings.convertToASTC, self.convertSettings.textureDimensions[0], self.convertSettings.textureDimensions[1], sizeDDS, sizeASTC, textureMode)
         else:
             dimensions = self.get_image_dimensions(inputfile)
             if len(dimensions) < 2:
                 self.processFinishedCB(True, "Could not get image dimensions!")
                 return
-            if(dimensions[0] != self.textureDimensions[0] or dimensions[1] != self.textureDimensions[1]):
+            if(dimensions[0] != self.convertSettings.textureDimensions[0] or dimensions[1] != self.convertSettings.textureDimensions[1]):
                 self.processFinishedCB(True, "All textures need to have the same resolution! Frame " + str(listIndex))
                 return
         
