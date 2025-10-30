@@ -304,9 +304,15 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
     string emptyScene = "Assets\\EmptyScene.unity";
     EditorSceneManager.OpenScene(emptyScene, OpenSceneMode.Single);
 
-    if (!Directory.Exists(pathToAssetSamples) || !Directory.Exists(pathToPackageSampleFolder))
+    if (!Directory.Exists(pathToAssetSamples))
     {
-      Debug.LogError("Could not find " + pathToAssetSamples + " or " + pathToPackageSampleFolder);
+      Debug.LogError("Could not find " + pathToAssetSamples);
+      return;
+    }
+
+    if (!Directory.Exists(pathToPackageSampleFolder))
+    {
+      Debug.LogError("Could not find " + pathToPackageSampleFolder);
       return;
     }
 

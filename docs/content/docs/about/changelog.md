@@ -13,6 +13,19 @@ weight: 420
 toc: true
 ---
 
+
+### Version 1.2.0
+
+This version focuses mostly on improvements of the pointcloud rendering ✨
+
+- Custom shaders for pointclouds can now be created with Shadergraph
+- In Pointcloud Shadergraphs, a custom size can be set for each point
+- Pointclouds sequences can now contain per-point normals
+- Pointcloud normals can be estimated with the Converter tool
+- A new sample that shows how to create custom shadergraphs for pointclouds
+
+Mesh sequences can now also be exported with custom per-vertex normals.
+
 ### Version 1.1.1
 
 Fixed Issues:
