@@ -25,7 +25,7 @@ This version focuses mostly on improvements of the pointcloud rendering ✨
 - **New sample**: A new sample that shows how to create custom shadergraphs for pointclouds
 - **Per-Vertex Normals**:  Mesh sequences can now also be exported with custom per-vertex normals
 
-⬇️ Please update to the [new Converter](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases), to be able to use the per-vertex normal features!
+⬆️ Please update to the [new Converter](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases), to be able to use the per-vertex normal features!
 
 ### Version 1.1.1
 
