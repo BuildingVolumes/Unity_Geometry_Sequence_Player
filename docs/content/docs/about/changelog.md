@@ -18,13 +18,14 @@ toc: true
 
 This version focuses mostly on improvements of the pointcloud rendering ✨
 
-- Custom shaders for pointclouds can now be created with Shadergraph
-- In Pointcloud Shadergraphs, a custom size can be set for each point
-- Pointclouds sequences can now contain per-point normals
-- Pointcloud normals can be estimated with the Converter tool
-- A new sample that shows how to create custom shadergraphs for pointclouds
+- **Custom Pointcloud Shaders**:  Custom shaders for pointclouds are now supported and can also be created with Unity Shadergraph
+- **Per-Point Sizes**:  Each point of a pointcloud can now have a unique size (Shadergraph only)
+- **Per-Point Normals**: Pointclouds sequences can now contain per-point normals
+- **Pointcloud Normal Estimation**: If needed, pointcloud normals can now be estimated with the Converter tool
+- **New sample**: A new sample that shows how to create custom shadergraphs for pointclouds
+- **Per-Vertex Normals**:  Mesh sequences can now also be exported with custom per-vertex normals
 
-Mesh sequences can now also be exported with custom per-vertex normals.
+⬇️ Please update to the [new Converter](https://github.com/BuildingVolumes/Unity_Geometry_Sequence_Player/releases), to be able to use the per-vertex normal features!
 
 ### Version 1.1.1
 
