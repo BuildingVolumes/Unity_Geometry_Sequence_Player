@@ -104,6 +104,6 @@ To start, open up the Shadergraph at:
 
 `Assets\Samples\Geometry Sequence Player\1.2.0\Sequence Samples\ExampleData\ExtraAssets\Shaders\DistortionShader.shadergraph`
 
-and take a look at the comments there to get an understanding of what makes the shader work. It is strongly recommended to get a basic graps of shader and shadergraph concepts first!
+and take a look at the comments there to get an understanding of what makes the shader work. It is strongly recommended to get a basic grap of [shaders](https://thebookofshaders.com/) and [shadergraph concepts](https://docs.unity3d.com/6000.2/Documentation/Manual/shader-graph.html) before diving into this!
 
-[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/materials/)
+[More info](/Unity_Geometry_Sequence_Player/docs/tutorials/materials-and-shaders/)

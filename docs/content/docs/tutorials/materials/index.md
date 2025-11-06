@@ -69,7 +69,7 @@ The pointcloud material is emissive by default, to give a look similar to an unl
 
 ![Pointcloud shadergraph example](shadergraph-distortion.jpg)
 
-If you don't set a custom material, a default pointcloud material will be loaded that is appropriate for the chosen rendering path. You can create your own Pointcloud shaders to more finely tune the appearance of the points. You will need some experience with writing shaders for Unitys Shaderlab/GLSL and/or Shadergraph. We strongly recommend to take a look at the [Shadergraph Example](/Unity_Geometry_Sequence_Player/docs/tutorials/materials/samples/#sample-05-shadergraph) and clone one of the available pointcloud shaders found under:
+If you don't set a custom material, a default pointcloud material will be loaded that is appropriate for the chosen rendering path. You can create your own Pointcloud shaders to more finely tune the appearance of the points. You will need some experience with writing shaders for Unitys Shaderlab/GLSL and/or Shadergraph. We strongly recommend to take a look at the [Shadergraph Example](/Unity_Geometry_Sequence_Player/docs/tutorials/samples/#sample-05-shadergraph) and clone one of the available pointcloud shaders found under:
 
 `Packages > Geometry Sequence Player > Runtime > Shader > Resources`
 
