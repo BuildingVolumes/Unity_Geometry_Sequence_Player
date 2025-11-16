@@ -77,7 +77,6 @@ class MetaData():
 
         # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
         self.boundsCenter[0] *= -1 # Min X
-        self.boundsSize[0] *= -1 # Max X
 
         self.headerSizes[listIndex] = headerSize
         self.verticeCounts[listIndex] = vertexCount
