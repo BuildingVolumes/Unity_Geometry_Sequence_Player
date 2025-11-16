@@ -21,7 +21,8 @@ class MetaData():
     hasNormals = False
     maxVertexCount = 0
     maxIndiceCount = 0
-    minMaxBounds = [0,0,0,0,0,0]
+    boundsCenter = [0,0,0]
+    boundsSize = [1,1,1]
     textureWidth = 0
     textureHeight = 0
     textureSizeDDS = 0
@@ -44,7 +45,8 @@ class MetaData():
             "hasNormals" : self.hasNormals,
             "maxVertexCount": self.maxVertexCount,
             "maxIndiceCount" : self.maxIndiceCount,
-            "maxBounds" : self.minMaxBounds,
+            "boundsCenter" : self.boundsCenter,
+            "boundsSize" : self.boundsSize,
             "textureWidth" : self.textureWidth,
             "textureHeight" : self.textureHeight,
             "textureSizeDDS" : self.textureSizeDDS,
@@ -70,17 +72,12 @@ class MetaData():
         if(indiceCount > self.maxIndiceCount):
             self.maxIndiceCount = indiceCount
 
-        for maxBound in range(3):
-            if abs(self.minMaxBounds[maxBound]) < abs(bounds.max()[maxBound]):
-                self.minMaxBounds[maxBound] = bounds.max()[maxBound]
-
-        for minBound in range(3):
-            if abs(self.minMaxBounds[minBound + 3]) < abs(bounds.min()[minBound]):
-                self.minMaxBounds[minBound + 3] = bounds.min()[minBound]
+        self.boundsCenter = bounds.center().tolist()
+        self.boundsSize = [bounds.dim_x(), bounds.dim_y(), bounds.dim_z()]
 
         # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
-        self.minMaxBounds[0] *= -1 # Min X
-        self.minMaxBounds[3] *= -1 # Max X
+        self.boundsCenter[0] *= -1 # Min X
+        self.boundsSize[0] *= -1 # Max X
 
         self.headerSizes[listIndex] = headerSize
         self.verticeCounts[listIndex] = vertexCount
