@@ -12,23 +12,19 @@ using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer.Explorer;
 
 public class BumpUpPackageVersionAndCopySamples : EditorWindow
 {
-  string pathToPackage = "";
-  string relativePathToPackageSamples = "Samples~\\SequenceSamples\\";
-  string pathToSamplesRootFolder = "Samples\\Geometry Sequence Player\\";
-  string relativePathToStreamSamples = "\\Sequence Samples\\";
-  string pathToSamplesFolder = "";
-  string pathToNewSamplesFolder = "";
+  const string relativePathToPackageSamples = "Samples~\\SequenceSamples";
+  const string relativePathToImportedSamples = "Samples\\Geometry Sequence Player";
+  const string SequencesSamplesFolderName = "Sequence Samples";
 
-  string pathToPackageJSON = "";
-  string pathToSamplesPackageFolder = "";
-
+  string currentPackagePath = "";
+  string currentPackageJsonPath = "";
   string currentVersion = "";
   string packageJSONContent;
   int newMajor;
   int newMinor;
   int newPatch;
 
-  static bool pathValid = false;
+  const string packagePathEditorPrefsKey = "UGGS_Package_Path";
 
   [MenuItem("UGGS Package/Increment package version and copy samples")]
   static void Init()
@@ -37,44 +33,44 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
 
     window.titleContent = new GUIContent("Change package versioning");
     window.ShowPopup();
-
-    if (!pathValid)
-      window.Close();
   }
 
   private void CreateGUI()
   {
+    string packagePath = EditorPrefs.GetString(packagePathEditorPrefsKey);
+    bool pathValid = false;
 
-
-    pathToSamplesPackageFolder = Path.Combine(pathToPackage, relativePathToPackageSamples);
-
-    bool cancel = false;
-    while (!pathValid && !cancel)
+    while (!pathValid)
     {
-      pathToPackageJSON = Path.Combine(pathToPackage, "package.json");
+      currentPackageJsonPath = Path.Combine(packagePath, "package.json");
 
-      if (!Directory.Exists(pathToPackage) || !File.Exists(pathToPackageJSON))
+      if (!File.Exists(currentPackageJsonPath))
       {
         EditorUtility.DisplayDialog("Path invalid!", "Path to package not found! Please change the path now", "Ok");
 
-        string newPathToPackage = EditorUtility.OpenFolderPanel("Select Package folder", pathToPackage, "");
+        string newPathToPackage = EditorUtility.OpenFolderPanel("Select Package folder", packagePath, "");
         if (newPathToPackage == String.Empty)
-          cancel = true;
+          break;
         else
-          pathToPackage = newPathToPackage;
+          packagePath = newPathToPackage;
       }
 
       else
       {
-        GetCurrentPackageVersion();
         pathValid = true;
       }
     }
 
+    if (!File.Exists(currentPackageJsonPath))
+    {
+      Debug.LogError("Could not find package.json in: " + currentPackageJsonPath);
+      GetWindow<BumpUpPackageVersionAndCopySamples>().Close();
+      return;
+    }
 
-
-    if (cancel)
-      pathValid = false;
+    currentPackagePath = packagePath;
+    EditorPrefs.SetString(packagePathEditorPrefsKey, packagePath);
+    GetCurrentPackageVersion(currentPackageJsonPath);
   }
 
   void OnGUI()
@@ -91,27 +87,27 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
 
     string newVersion = newMajor + "." + newMinor + "." + newPatch;
 
-    pathToSamplesFolder = pathToSamplesRootFolder + currentVersion + relativePathToStreamSamples;
-    pathToNewSamplesFolder = "Assets\\" + pathToSamplesRootFolder + newVersion + relativePathToStreamSamples;
+    string absPathToUpgradedImportedSamplesFolder = Path.Combine(Application.dataPath, relativePathToImportedSamples, newVersion, SequencesSamplesFolderName);
+    string absPathToUpgradedPackageSamplesFolder = Path.Combine(currentPackagePath, relativePathToPackageSamples);
 
     if (GUILayout.Button("Change Version and copy samples"))
     {
-      UpdatePackageJSONAndSave(pathToPackageJSON, packageJSONContent, newVersion);
       UpdateSamples(currentVersion, newVersion);
-      CopySamples(pathToNewSamplesFolder, pathToSamplesPackageFolder);
-      GetCurrentPackageVersion();
+      CopySamples(absPathToUpgradedImportedSamplesFolder, absPathToUpgradedPackageSamplesFolder);
+      UpdatePackageJSONAndSave(currentPackageJsonPath, packageJSONContent, newVersion);
+      GetCurrentPackageVersion(currentPackageJsonPath);
       EditorUtility.SetDirty(this);
     }
 
     if (GUILayout.Button("Just copy samples"))
     {
-      CopySamples(pathToNewSamplesFolder, pathToSamplesPackageFolder);
-      GetCurrentPackageVersion();
+      CopySamples(absPathToUpgradedImportedSamplesFolder, absPathToUpgradedPackageSamplesFolder);
+      GetCurrentPackageVersion(currentPackageJsonPath);
       EditorUtility.SetDirty(this);
     }
   }
 
-  void GetCurrentPackageVersion()
+  void GetCurrentPackageVersion(string pathToPackageJSON)
   {
     packageJSONContent = File.ReadAllText(pathToPackageJSON);
 
@@ -151,27 +147,29 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
 
   void UpdateSamples(string currentVersion, string newVersion)
   {
-    string pathToBasicSceneMesh = pathToSamplesFolder + "01_Basic_Example.unity";
-    string pathToBasicScenePC = pathToSamplesFolder + "02_Pointcloud_Example.unity";
-    string pathToTimelineScene = pathToSamplesFolder + "03_Timeline_Example.unity";
-    string pathToAPIScene = pathToSamplesFolder + "04_API_Example.unity";
-    string pathToShadergraphScene = pathToSamplesFolder + "05_Shadergraph_Example.unity";
+    string relativePathToImportedSequenceSamplesFolder = Path.Combine(relativePathToImportedSamples, currentVersion, SequencesSamplesFolderName);
 
-    string pathToNewSampleDataMesh = pathToSamplesRootFolder + newVersion + relativePathToStreamSamples + "ExampleData\\TexturedMesh_Sequence_Sample";
-    string pathToNewSampleDataPC = pathToSamplesRootFolder + newVersion + relativePathToStreamSamples + "ExampleData\\Pointcloud_Sequence_Sample";
+    string pathToBasicSceneMesh = Path.Combine(relativePathToImportedSequenceSamplesFolder, "01_Basic_Example.unity");
+    string pathToBasicScenePC = Path.Combine(relativePathToImportedSequenceSamplesFolder, "02_Pointcloud_Example.unity");
+    string pathToTimelineScene = Path.Combine(relativePathToImportedSequenceSamplesFolder,"03_Timeline_Example.unity");
+    string pathToAPIScene = Path.Combine(relativePathToImportedSequenceSamplesFolder, "04_API_Example.unity");
+    string pathToShadergraphScene = Path.Combine(relativePathToImportedSequenceSamplesFolder, "05_Shadergraph_Example.unity");
+
+    string pathToNewSampleDataMesh = Path.Combine(relativePathToImportedSamples, newVersion, SequencesSamplesFolderName, "ExampleData\\TexturedMesh_Sequence_Sample");
+    string pathToNewSampleDataPC = Path.Combine(relativePathToImportedSamples, newVersion, SequencesSamplesFolderName, "ExampleData\\Pointcloud_Sequence_Sample");
 
     UpdateBasicSample(pathToBasicSceneMesh, pathToNewSampleDataMesh);
     UpdateBasicSample(pathToBasicScenePC, pathToNewSampleDataPC);
     UpdateBasicSample(pathToShadergraphScene, pathToNewSampleDataPC);
     UpdateTimelineSample(pathToTimelineScene, pathToNewSampleDataMesh);
     UpdateAPISample(pathToAPIScene, pathToNewSampleDataMesh);
-    RenameSamplePath("Assets\\" + pathToSamplesRootFolder + currentVersion, "Assets\\" + pathToSamplesRootFolder + newVersion);
+    RenameSamplePath(Path.Join("Assets", relativePathToImportedSamples, currentVersion), Path.Join("Assets", relativePathToImportedSamples, newVersion));
   }
 
-  bool UpdateBasicSample(string pathToScene, string pathToNewSampleData)
+  bool UpdateBasicSample(string relativePathToScene, string relativeImportedUpgradedSampleDataPath)
   {
 
-    string absolutePath = Path.Combine(Application.dataPath, pathToScene);
+    string absolutePath = Path.Combine(Application.dataPath, relativePathToScene);
 
     //Basic Sample
     try
@@ -192,16 +190,16 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
       return false;
     }
 
-    player.SetPath(pathToNewSampleData, GeometrySequenceStream.PathType.RelativeToDataPath);
+    player.SetPath(relativeImportedUpgradedSampleDataPath, GeometrySequenceStream.PathType.RelativeToDataPath);
     EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
     return true;
   }
 
-  bool UpdateTimelineSample(string pathToScene, string pathToNewSampleData)
+  bool UpdateTimelineSample(string relativePathToScene, string relativeImportedUpgradedSampleDataPath)
   {
     //Timeline Sample
 
-    string absolutePath = Path.Combine(Application.dataPath, pathToScene);
+    string absolutePath = Path.Combine(Application.dataPath, relativePathToScene);
 
     try
     {
@@ -233,7 +231,7 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
         return false;
       }
 
-      geoClip.relativePath = pathToNewSampleData;
+      geoClip.relativePath = relativeImportedUpgradedSampleDataPath;
 
     }
 
@@ -244,11 +242,11 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
     return true;
   }
 
-  bool UpdateAPISample(string pathToScene, string pathToNewSampleData)
+  bool UpdateAPISample(string relativePathToScene, string relativeImportedUpgradedSampleDataPath)
   {
     //API Sample
 
-    string absolutePath = Path.Combine(Application.dataPath, pathToScene);
+    string absolutePath = Path.Combine(Application.dataPath, relativePathToScene);
 
     try
     {
@@ -268,19 +266,19 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
       return false;
     }
 
-    api.sequencePath = pathToNewSampleData;
+    api.sequencePath = relativeImportedUpgradedSampleDataPath;
     EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
     return true;
   }
 
-  bool RenameSamplePath(string oldpath, string newpath)
+  bool RenameSamplePath(string oldSamplePathRelativeToProject, string newSamplePathRelativeToProject)
   {
-    if (Directory.Exists(oldpath))
+    if (Directory.Exists(oldSamplePathRelativeToProject))
     {
-      if (oldpath == newpath)
+      if (oldSamplePathRelativeToProject == newSamplePathRelativeToProject)
         return true;
 
-      string error = AssetDatabase.MoveAsset(oldpath, newpath);
+      string error = AssetDatabase.MoveAsset(oldSamplePathRelativeToProject, newSamplePathRelativeToProject);
 
       if (error != "")
       {
@@ -299,26 +297,31 @@ public class BumpUpPackageVersionAndCopySamples : EditorWindow
     return true;
   }
 
-  void CopySamples(string pathToAssetSamples, string pathToPackageSampleFolder)
+  void CopySamples(string absPathToImportedSampleFolder, string absPathToPackageSampleFolder)
   {
     string emptyScene = "Assets\\EmptyScene.unity";
     EditorSceneManager.OpenScene(emptyScene, OpenSceneMode.Single);
 
-    if (!Directory.Exists(pathToAssetSamples))
+    if (!Directory.Exists(absPathToImportedSampleFolder))
     {
-      Debug.LogError("Could not find " + pathToAssetSamples);
+      Debug.LogError("Could not find " + absPathToImportedSampleFolder);
       return;
     }
 
-    if (!Directory.Exists(pathToPackageSampleFolder))
+    if (!Directory.Exists(absPathToPackageSampleFolder))
     {
-      Debug.LogError("Could not find " + pathToPackageSampleFolder);
-      return;
+      if (Directory.Exists(Directory.GetParent(absPathToPackageSampleFolder).ToString()))
+        Directory.CreateDirectory(absPathToPackageSampleFolder);
+      else
+      {
+        Debug.LogError("Could not find " + absPathToPackageSampleFolder);
+        return;
+      }
     }
 
     try
     {
-      CopyDirectory(pathToAssetSamples, pathToPackageSampleFolder, true);
+      CopyDirectory(absPathToImportedSampleFolder, absPathToPackageSampleFolder, true);
     }
 
     catch (Exception e)
