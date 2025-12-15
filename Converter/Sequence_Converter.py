@@ -406,7 +406,7 @@ class SequenceConverter:
         self.convert_image(self.convertSettings.imagePaths[0])
         self.convertSettings.imagePaths.pop(0)
 
-        self.texturePool.map_async(self.convert_image, self.convertSettings.imagePaths)
+        self.convertSettings.texturePool.map_async(self.convert_image, self.convertSettings.imagePaths)
 
     def convert_image(self, file):
 
@@ -420,7 +420,7 @@ class SequenceConverter:
         file_name = splitted_file[0]
         for x in range(1, len(splitted_file) - 1):
             file_name += "." + splitted_file[x]
-        inputfile = self.inputPath + "\\"+ file
+        inputfile = self.convertSettings.inputPath + "\\"+ file
 
         sizeDDS = 0
         sizeASTC = 0
@@ -430,14 +430,14 @@ class SequenceConverter:
             cmd = self.convertSettings.resourcePath + "texconv " + "\"" + inputfile + "\"" + " -o " + "\"" + self.convertSettings.outputPath + "\"" +" -m 1 -f DXT1 -y -nologo"
             if(self.convertSettings.convertToSRGB):
                 cmd += " -srgbo" 
-            if(subprocess.run(cmd).returncode != 0):
+            if(subprocess.run(cmd, stdout=open(os.devnull, 'wb')).returncode != 0):
                 self.processFinishedCB(True, "Error converting DDS texture: " + inputfile)
                 return
         
         if(self.convertSettings.convertToASTC):
             outputfileASCT =  self.convertSettings.outputPath + "\\" + file_name + ".astc"
             cmd = self.convertSettings.resourcePath + "astcenc -cl " + "\"" + inputfile + "\"" + " " + "\"" + outputfileASCT + "\"" + " 6x6 -medium -silent"
-            if(subprocess.run(cmd).returncode != 0):
+            if(subprocess.run(cmd, stdout=open(os.devnull, 'wb')).returncode != 0):
                 self.processFinishedCB(True, "Error converting ASTC texture: " + inputfile)
                 return
 
@@ -464,6 +464,8 @@ class SequenceConverter:
                 self.processFinishedCB(True, "All textures need to have the same resolution! Frame " + str(listIndex))
                 return
         
+        #print("Converted image file: " + file_name)
+        #print()
         self.processFinishedCB(False, "")
 
     def get_image_dimensions(self, filePath):

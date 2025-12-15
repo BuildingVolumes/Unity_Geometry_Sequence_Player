@@ -365,6 +365,7 @@ class ConverterUI:
 
         if(self.processedFileCount == self.totalFileCount):
             self.conversionFinished = True
+            print("Conversion finished")
 
         self.progressbarLock.release()
 
