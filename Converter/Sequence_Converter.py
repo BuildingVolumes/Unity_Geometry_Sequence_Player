@@ -39,21 +39,21 @@ class SequenceConverter:
     convertSettings = SequenceConverterSettings()
     terminateProcessing = False
     debugMode = False
-    
+
     modelPool = None
     texturePool = None
 
     processFinishedCB = None
-    
+
     loadMeshLock = Lock()
     activeThreads = 0
 
     #Only used for pointcloud normal estimation
-    lastAverageNormal = [0, 0, 0] 
+    lastAverageNormal = [0, 0, 0]
     firstEstimation = True
 
-    def start_conversion(self, convertSettings, processFinishedCB):       
-        
+    def start_conversion(self, convertSettings, processFinishedCB):
+
         self.convertSettings = convertSettings
         self.terminateProcessing = False
         self.processFinishedCB = processFinishedCB
@@ -63,7 +63,7 @@ class SequenceConverter:
         self.convertSettings.metaData.headerSizes = [None] * modelCount
         self.convertSettings.metaData.verticeCounts = [None] * modelCount
         self.convertSettings.metaData.indiceCounts = [None] * modelCount
-    
+
         if(len(self.convertSettings.modelPaths) > 0):
             self.process_models()
         if(len(self.convertSettings.imagePaths) > 0):
@@ -111,10 +111,10 @@ class SequenceConverter:
         if self.debugMode:
             self.firstEstimation = True
             for model in self.convertSettings.modelPaths:
-                self.convert_model(model)            
+                self.convert_model(model)
         else:
             # Process the first model to establish sequence attributes (Pointcloud or Mesh, has UVs? Normals?)
-            self.convert_model(self.convertSettings.modelPaths[0]) 
+            self.convert_model(self.convertSettings.modelPaths[0])
             self.modelPool = ThreadPool(processes = threads)
             self.modelPool.map_async(self.convert_model, self.convertSettings.modelPaths)
 
@@ -143,7 +143,7 @@ class SequenceConverter:
         except:
             self.loadMeshLock.release()
             self.processFinishedCB(True, "Error opening file: " + inputfile)
-            return    
+            return
 
         if(self.terminateProcessing):
             self.processFinishedCB(False, "")
@@ -152,7 +152,7 @@ class SequenceConverter:
 
         faceCount = len(ms.current_mesh().face_matrix())
 
-        #Is the file a mesh or pointcloud?        
+        #Is the file a mesh or pointcloud?
         if(faceCount > 0):
             pointcloud = False
         else:
@@ -192,10 +192,10 @@ class SequenceConverter:
         #coordinates which are unsupported in Unity, so we convert them
         #Also we need to ensure that our mesh contains only triangles!
         if(self.convertSettings.isPointcloud == False and ms.current_mesh().has_wedge_tex_coord() == True):
-            ms.compute_texcoord_transfer_wedge_to_vertex()     
+            ms.compute_texcoord_transfer_wedge_to_vertex()
 
 
-        # We'll later flip the x-Axis. For meshes, this also requires us to flip the face orientation 
+        # We'll later flip the x-Axis. For meshes, this also requires us to flip the face orientation
         if(self.convertSettings.isPointcloud == False):
             ms.meshing_invert_face_orientation(forceflip = True)
 
@@ -220,10 +220,10 @@ class SequenceConverter:
                 # The dot product let's us know how if the average normals point in the same direction
                 # (-1 for opposite, 1 for same direction)
                 dot_product = np.dot(v1_norm, v2_norm)
-                
+
                 #Flip normals if the average normal differs too much from the last frame
                 if(dot_product < 0.5):
-                    normals = normals * -1 
+                    normals = normals * -1
                     averageNormal = np.multiply(averageNormal, -1)
 
             self.lastAverageNormal = averageNormal
@@ -243,16 +243,16 @@ class SequenceConverter:
         if(self.convertSettings.isPointcloud == True):
             vertices = ms.current_mesh().vertex_matrix().astype(np.float32)
             vertice_colors = ms.current_mesh().vertex_color_array()
-        
+
         else:
             vertices = ms.current_mesh().vertex_matrix().astype(np.float32)
             faces = ms.current_mesh().face_matrix()
 
-            if(self.convertSettings.hasUVs == True):     
+            if(self.convertSettings.hasUVs == True):
                 uvs = ms.current_mesh().vertex_tex_coord_matrix().astype(np.float32)
 
         #Check if the mesh has pre-existing normals
-        
+
         vertexCount = len(vertices)
 
         if(faces is not None):
@@ -277,7 +277,7 @@ class SequenceConverter:
 
         if not self.debugMode:
             self.loadMeshLock.release()
-        
+
         #The meshlab exporter doesn't support all the features we need, so we export the files manually
         #to PLY with our very stringent structure. This is needed because we want to keep the
         #work on the Unity side as low as possible, so we basically want to load the data from disk into the memory
@@ -294,7 +294,7 @@ class SequenceConverter:
             header += "comment Exported for use in Unity Geometry Streaming Plugin" + "\n"
 
             header += "element vertex " + str(vertexCount) + "\n"
-            header += "property float x" + "\n" 
+            header += "property float x" + "\n"
             header += "property float y" + "\n"
             header += "property float z" + "\n"
 
@@ -308,10 +308,10 @@ class SequenceConverter:
                 header += "property uchar green" + "\n"
                 header += "property uchar blue" + "\n"
                 header += "property uchar alpha" + "\n"
-            
+
             else:
                 if(self.convertSettings.hasUVs == True):
-                    header += "property float s" + "\n" 
+                    header += "property float s" + "\n"
                     header += "property float t" + "\n"
                 header += "element face " + str(len(faces)) + "\n"
                 header += "property list uchar uint vertex_indices" + "\n"
@@ -341,7 +341,7 @@ class SequenceConverter:
 
             #Constructing the mesh data, as binary array
             if(self.convertSettings.isPointcloud == True):
-                
+
                 verticeColorsBytes = np.frombuffer(vertice_colors.tobytes(), dtype=np.uint8)
 
                 #Reshape arrays into 2D array, so that the elements of one vertex each occupy one row
@@ -363,7 +363,7 @@ class SequenceConverter:
                 body = body.ravel()
 
             else:
-                
+
                 if(self.convertSettings.hasUVs == True):
                     uvsBytes = np.frombuffer(uvs.tobytes(), dtype=np.uint8)
                     uvsBytes = np.reshape(uvsBytes, (-1, 8))
@@ -388,7 +388,7 @@ class SequenceConverter:
 
         self.convertSettings.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.convertSettings.hasUVs, self.convertSettings.hasNormals, listIndex)
 
-        self.processFinishedCB(False, "") 
+        self.processFinishedCB(False, "")
 
         if self.debugMode:
             print("Processed file: " + str(listIndex))
@@ -429,11 +429,11 @@ class SequenceConverter:
             outputfileDDS =  self.convertSettings.outputPath + "\\" + file_name + ".dds"
             cmd = self.convertSettings.resourcePath + "texconv " + "\"" + inputfile + "\"" + " -o " + "\"" + self.convertSettings.outputPath + "\"" +" -m 1 -f DXT1 -y -nologo"
             if(self.convertSettings.convertToSRGB):
-                cmd += " -srgbo" 
+                cmd += " -srgbo"
             if(subprocess.run(cmd, stdout=open(os.devnull, 'wb')).returncode != 0):
                 self.processFinishedCB(True, "Error converting DDS texture: " + inputfile)
                 return
-        
+
         if(self.convertSettings.convertToASTC):
             outputfileASCT =  self.convertSettings.outputPath + "\\" + file_name + ".astc"
             cmd = self.convertSettings.resourcePath + "astcenc -cl " + "\"" + inputfile + "\"" + " " + "\"" + outputfileASCT + "\"" + " 6x6 -medium -silent"
@@ -463,14 +463,14 @@ class SequenceConverter:
             if(dimensions[0] != self.convertSettings.textureDimensions[0] or dimensions[1] != self.convertSettings.textureDimensions[1]):
                 self.processFinishedCB(True, "All textures need to have the same resolution! Frame " + str(listIndex))
                 return
-        
+
         #print("Converted image file: " + file_name)
         #print()
         self.processFinishedCB(False, "")
 
     def get_image_dimensions(self, filePath):
 
-            pilimg = Image.open(filePath) 
+            pilimg = Image.open(filePath)
             pilimg.load()
             dimensions = [pilimg.width, pilimg.height]
             pilimg.close()
@@ -482,7 +482,7 @@ class SequenceConverter:
 
         pilimg = Image.open(filePath)
         pilimg.load()
-        
+
         if("gamma" in pilimg.info):
             gamma = pilimg.info["gamma"]
             if(gamma >= 0.45 and gamma <= 0.46):
