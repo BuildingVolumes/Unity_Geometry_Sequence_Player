@@ -185,10 +185,10 @@ class ConverterUI:
         elif __file__:
             self.applicationPath = os.path.abspath(os.path.dirname(__file__))
 
-        self.applicationPath += "\\"
+        self.applicationPath += os.sep
 
-        self.resourcesPath = self.applicationPath + "resources\\"
-        self.configPath = self.resourcesPath + "config.ini"
+        self.resourcesPath = os.path.join(self.applicationPath, "resources") + os.sep
+        self.configPath = os.path.join(self.resourcesPath, "config.ini")
         self.config = configparser.ConfigParser()
 
     def open_file_dialog(self, path):
@@ -261,7 +261,7 @@ class ConverterUI:
     def set_proposed_output_files(self, input_path):
 
         if(len(self.outputSequencePath) < 1 or self.outputSequencePath == self.noPathWarning):
-            self.proposedOutputPath = input_path + "\\converted"
+            self.proposedOutputPath = os.path.join(input_path, "converted")
             self.output_path_label_set("Proposed path: " + self.proposedOutputPath)
 
     def set_output_files(self, new_output_path):
@@ -513,5 +513,6 @@ class ConverterUI:
         dpg.destroy_context()
 
 if (__name__ == '__main__'):
+    Tk() # make sure Tkinter is loaded before starting DearPyGUI -- e.g. https://github.com/python/cpython/issues/90731
     UI = ConverterUI()
     UI.RunUI()

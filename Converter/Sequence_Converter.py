@@ -130,8 +130,8 @@ class SequenceConverter:
         splitted_file.pop() # We remove the last element, which is the file ending
         file_name = ''.join(splitted_file)
 
-        inputfile = self.convertSettings.inputPath + "\\"+ file
-        outputfile =  self.convertSettings.outputPath + "\\" + file_name + ".ply"
+        inputfile = os.path.join(self.convertSettings.inputPath, file)
+        outputfile = os.path.join(self.convertSettings.outputPath, file_name + ".ply")
 
         ms = ml.MeshSet()
 
@@ -420,13 +420,13 @@ class SequenceConverter:
         file_name = splitted_file[0]
         for x in range(1, len(splitted_file) - 1):
             file_name += "." + splitted_file[x]
-        inputfile = self.convertSettings.inputPath + "\\"+ file
+        inputfile = os.path.join(self.convertSettings.inputPath, file)
 
         sizeDDS = 0
         sizeASTC = 0
 
         if(self.convertSettings.convertToDDS):
-            outputfileDDS =  self.convertSettings.outputPath + "\\" + file_name + ".dds"
+            outputfileDDS = os.path.join(self.convertSettings.outputPath, file_name + ".dds")
             cmd = self.convertSettings.resourcePath + "texconv " + "\"" + inputfile + "\"" + " -o " + "\"" + self.convertSettings.outputPath + "\"" +" -m 1 -f DXT1 -y -nologo"
             if(self.convertSettings.convertToSRGB):
                 cmd += " -srgbo"
@@ -435,7 +435,7 @@ class SequenceConverter:
                 return
 
         if(self.convertSettings.convertToASTC):
-            outputfileASCT =  self.convertSettings.outputPath + "\\" + file_name + ".astc"
+            outputfileASCT = os.path.join(self.convertSettings.outputPath, file_name + ".astc")
             cmd = self.convertSettings.resourcePath + "astcenc -cl " + "\"" + inputfile + "\"" + " " + "\"" + outputfileASCT + "\"" + " 6x6 -medium -silent"
             if(subprocess.run(cmd, stdout=open(os.devnull, 'wb')).returncode != 0):
                 self.processFinishedCB(True, "Error converting ASTC texture: " + inputfile)
