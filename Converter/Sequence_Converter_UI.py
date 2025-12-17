@@ -515,6 +515,6 @@ class ConverterUI:
         dpg.destroy_context()
 
 if (__name__ == '__main__'):
-    Tk() # make sure Tkinter is loaded before starting DearPyGUI -- e.g. https://github.com/python/cpython/issues/90731
+    Tk().withdraw() # make sure Tkinter is loaded before starting DearPyGUI -- e.g. https://github.com/python/cpython/issues/90731
     UI = ConverterUI()
     UI.RunUI()
