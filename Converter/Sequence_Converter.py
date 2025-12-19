@@ -29,6 +29,7 @@ class SequenceConverterSettings:
     decimatePercentage = 0
     saveNormals = False
     generateNormals = False
+    skipAlphaChannel = False
     mergePoints = False
     mergeDistance = 0
 
@@ -307,8 +308,9 @@ class SequenceConverter:
                 header += "property uchar red" + "\n"
                 header += "property uchar green" + "\n"
                 header += "property uchar blue" + "\n"
-                header += "property uchar alpha" + "\n"
-            
+                if(not self.convertSettings.skipAlphaChannel):
+                    header += "property uchar alpha" + "\n"
+
             else:
                 if(self.convertSettings.hasUVs == True):
                     header += "property float s" + "\n" 
@@ -347,8 +349,11 @@ class SequenceConverter:
                 #Reshape arrays into 2D array, so that the elements of one vertex each occupy one row
                 verticeColorsBytes = np.reshape(verticeColorsBytes, (-1, 4))
 
-                #Convert colors from BGRA to RGBA
-                verticeColorsBytes = verticeColorsBytes[..., [2,1,0,3]]
+                #Convert colors from BGRA to RGBA (or to RGB if alpha channel is skipped)
+                if(self.convertSettings.skipAlphaChannel):
+                    verticeColorsBytes = verticeColorsBytes[..., [2,1,0]]
+                else:
+                    verticeColorsBytes = verticeColorsBytes[..., [2,1,0,3]]
 
                 byteCombination.append(verticeColorsBytes)
 
