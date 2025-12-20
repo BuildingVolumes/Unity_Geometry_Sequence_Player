@@ -33,7 +33,7 @@ class ConverterUI:
     #You need to have PyInstaller installed in your local environment
     # pyinstaller Sequence_Converter_UI.py --collect-all=pymeshlab --collect-all=numpy --icon=resources/logo.ico -F
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE MACOS APP  ++++++++++++++++++++++++++++++++++
-    # pyinstaller Sequence_Converter_UI.py --collect-all=pymeshlab --collect-all=numpy --icon=resources/logo.icns --windowed
+    # pyinstaller Sequence_Converter_UI.py --collect-binaries pymeshlab.PlugIns --icon=resources/logo.icns --windowed
 
     isRunning = False
     conversionFinished = False
