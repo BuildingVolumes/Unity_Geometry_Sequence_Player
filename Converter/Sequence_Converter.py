@@ -30,6 +30,7 @@ class SequenceConverterSettings:
     saveNormals = False
     generateNormals = False
     skipAlphaChannel = False
+    useHalfPrecisionFloat = False
     mergePoints = False
     mergeDistance = 0
 
@@ -295,9 +296,14 @@ class SequenceConverter:
             header += "comment Exported for use in Unity Geometry Streaming Plugin" + "\n"
 
             header += "element vertex " + str(vertexCount) + "\n"
-            header += "property float x" + "\n" 
-            header += "property float y" + "\n"
-            header += "property float z" + "\n"
+            if(self.convertSettings.useHalfPrecisionFloat and False):
+                header += "property half x" + "\n"
+                header += "property half y" + "\n"
+                header += "property half z" + "\n"
+            else:
+                header += "property float x" + "\n"
+                header += "property float y" + "\n"
+                header += "property float z" + "\n"
 
             if(self.convertSettings.hasNormals):
                 header += "property float nx" + "\n"
@@ -330,6 +336,15 @@ class SequenceConverter:
             #Flip vertice positions and normals to match Unity's coordinate system
             vertices[:,0] *= -1
             normals[:,0] *= -1
+
+            if(self.convertSettings.useHalfPrecisionFloat):
+                boundsCenter = bounds.center().astype(dtype=np.float32)
+                boundsSize = np.array([bounds.dim_x(), bounds.dim_y(), bounds.dim_z()]).astype(dtype=np.float32)
+                vertices = vertices - boundsCenter
+                vertices = vertices / boundsSize
+                vertices = vertices.astype(dtype=np.float16, casting='same_kind')
+                vertices = vertices.astype(dtype=np.float32, casting='same_kind')
+
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
             verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))

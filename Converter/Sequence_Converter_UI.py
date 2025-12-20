@@ -28,6 +28,7 @@ class ConverterUI:
     save_normals_ID = 0
     generate_normals_ID = 0
     skip_alpha_channel_ID = 0
+    use_half_precision_float_ID = 0
 
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE WINDOWS EXECUTABLE ++++++++++++++++++++++++++++++++++
     #Use this prompt in the terminal to package this script into a single executable for your system
@@ -62,6 +63,7 @@ class ConverterUI:
     decimatePointcloud = False
     generateNormals = False
     skipAlphaChannel = False
+    useHalfPrecisionFloat = False
     save_normals = False
     decimatePercentage = 100
     mergePoints = False
@@ -122,6 +124,10 @@ class ConverterUI:
         self.skipAlphaChannel = app_data
         self.write_settings_string("skipAlphaChannel", str(app_data))
 
+    def set_Use_Half_Precision_Float_cb(self, sender, app_data):
+        self.useHalfPrecisionFloat = app_data
+        self.write_settings_string("useHalfPrecisionFloat", str(app_data))
+
     def set_normals_enabled_cb(self, sender, app_data):
         self.save_normals = app_data
         self.write_settings_string("saveNormals", str(app_data))
@@ -176,6 +182,7 @@ class ConverterUI:
         convertSettings.saveNormals = self.save_normals
         convertSettings.generateNormals = self.generateNormals
         convertSettings.skipAlphaChannel = self.skipAlphaChannel
+        convertSettings.useHalfPrecisionFloat = self.useHalfPrecisionFloat
         convertSettings.mergePoints = self.mergePoints
         convertSettings.mergeDistance = self.mergeDistance
 
@@ -488,6 +495,7 @@ class ConverterUI:
 
                 self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
                 self.skip_alpha_channel_ID = dpg.add_checkbox(label= "Don't export Alpha channel", default_value=self.skipAlphaChannel, callback=self.set_Skip_Alpha_Channel_cb)
+                self.use_half_precision_float_ID = dpg.add_checkbox(label= "Use half-precision floats for coordinates", default_value=self.useHalfPrecisionFloat, callback=self.set_Use_Half_Precision_Float_cb)
 
             dpg.add_spacer(height=5)
 
