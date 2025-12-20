@@ -1,6 +1,9 @@
 import os
 import sys
 import re
+import multiprocessing
+if getattr(sys, 'frozen', False):
+    multiprocessing.freeze_support()  # for PyInstaller support
 import configparser
 from threading import Event
 from threading import Lock
@@ -189,7 +192,11 @@ class ConverterUI:
 
         self.applicationPath += os.sep
 
-        self.resourcesPath = os.path.join(self.applicationPath, "resources") + os.sep
+        if (sys.platform == "darwin"):
+            self.resourcesPath = os.path.abspath(self.applicationPath + "../Resources/")
+        else:
+            self.resourcesPath = os.path.join(self.applicationPath, "resources") + os.sep
+
         self.configPath = os.path.join(self.resourcesPath, "config.ini")
         self.config = configparser.ConfigParser()
 
