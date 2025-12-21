@@ -296,7 +296,7 @@ class SequenceConverter:
             header += "comment Exported for use in Unity Geometry Streaming Plugin" + "\n"
 
             header += "element vertex " + str(vertexCount) + "\n"
-            if(self.convertSettings.useHalfPrecisionFloat and False):
+            if(self.convertSettings.useHalfPrecisionFloat):
                 header += "property half x" + "\n"
                 header += "property half y" + "\n"
                 header += "property half z" + "\n"
@@ -343,11 +343,13 @@ class SequenceConverter:
                 vertices = vertices - boundsCenter
                 vertices = vertices / boundsSize
                 vertices = vertices.astype(dtype=np.float16, casting='same_kind')
-                vertices = vertices.astype(dtype=np.float32, casting='same_kind')
 
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
-            verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12))
+            if(self.convertSettings.useHalfPrecisionFloat):
+                verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 6)) # 3 * 2 bytes per vertex
+            else:
+                verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12)) # 3 * 4 bytes per vertex
             byteCombination.append(verticePositionsBytes)
 
             if(self.convertSettings.hasNormals):
