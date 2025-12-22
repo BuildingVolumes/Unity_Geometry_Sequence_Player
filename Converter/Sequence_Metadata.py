@@ -19,6 +19,8 @@ class MetaData():
     ASTC = False
     hasUVs = False
     hasNormals = False
+    hasAlpha = True
+    halfPrecision = False
     maxVertexCount = 0
     maxIndiceCount = 0
     boundsCenter = [0,0,0]
@@ -43,6 +45,8 @@ class MetaData():
             "ASTC" : self.ASTC,
             "hasUVs" : self.hasUVs,
             "hasNormals" : self.hasNormals,
+            "hasAlpha" : self.hasAlpha,
+            "halfPrecision": self.halfPrecision,
             "maxVertexCount": self.maxVertexCount,
             "maxIndiceCount" : self.maxIndiceCount,
             "boundsCenter" : self.boundsCenter,
@@ -57,14 +61,16 @@ class MetaData():
         }
 
         return asDict
-        
-    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, bounds, geometryType, hasUV, hasNormals, listIndex):
-        
+
+    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, bounds, geometryType, hasUV, hasNormals, hasAlpha, halfPrecision, listIndex):
+
         self.metaDataLock.acquire()
 
         self.geometryType = geometryType
         self.hasUVs = hasUV
         self.hasNormals = hasNormals
+        self.hasAlpha = hasAlpha
+        self.halfPrecision = halfPrecision
 
         if(vertexCount > self.maxVertexCount):
             self.maxVertexCount = vertexCount

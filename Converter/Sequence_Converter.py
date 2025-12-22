@@ -29,8 +29,8 @@ class SequenceConverterSettings:
     decimatePercentage = 0
     saveNormals = False
     generateNormals = False
-    skipAlphaChannel = False
-    useHalfPrecisionFloat = False
+    hasAlpha = True
+    halfPrecision = False
     mergePoints = False
     mergeDistance = 0
 
@@ -296,7 +296,7 @@ class SequenceConverter:
             header += "comment Exported for use in Unity Geometry Streaming Plugin" + "\n"
 
             header += "element vertex " + str(vertexCount) + "\n"
-            if(self.convertSettings.useHalfPrecisionFloat):
+            if(self.convertSettings.halfPrecision):
                 header += "property half x" + "\n"
                 header += "property half y" + "\n"
                 header += "property half z" + "\n"
@@ -314,7 +314,7 @@ class SequenceConverter:
                 header += "property uchar red" + "\n"
                 header += "property uchar green" + "\n"
                 header += "property uchar blue" + "\n"
-                if(not self.convertSettings.skipAlphaChannel):
+                if(self.convertSettings.hasAlpha):
                     header += "property uchar alpha" + "\n"
 
             else:
@@ -337,7 +337,7 @@ class SequenceConverter:
             vertices[:,0] *= -1
             normals[:,0] *= -1
 
-            if(self.convertSettings.useHalfPrecisionFloat):
+            if(self.convertSettings.halfPrecision):
                 boundsCenter = bounds.center().astype(dtype=np.float32)
                 boundsSize = np.array([bounds.dim_x(), bounds.dim_y(), bounds.dim_z()]).astype(dtype=np.float32)
                 vertices = vertices - boundsCenter
@@ -346,7 +346,7 @@ class SequenceConverter:
 
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
-            if(self.convertSettings.useHalfPrecisionFloat):
+            if(self.convertSettings.halfPrecision):
                 verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 6)) # 3 * 2 bytes per vertex
             else:
                 verticePositionsBytes = np.reshape(verticePositionsBytes, (-1, 12)) # 3 * 4 bytes per vertex
@@ -367,7 +367,7 @@ class SequenceConverter:
                 verticeColorsBytes = np.reshape(verticeColorsBytes, (-1, 4))
 
                 #Convert colors from BGRA to RGBA (or to RGB if alpha channel is skipped)
-                if(self.convertSettings.skipAlphaChannel):
+                if(not self.convertSettings.hasAlpha):
                     verticeColorsBytes = verticeColorsBytes[..., [2,1,0]]
                 else:
                     verticeColorsBytes = verticeColorsBytes[..., [2,1,0,3]]
@@ -408,7 +408,7 @@ class SequenceConverter:
 
             f.write(bytes(body))
 
-        self.convertSettings.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.convertSettings.hasUVs, self.convertSettings.hasNormals, listIndex)
+        self.convertSettings.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.convertSettings.hasUVs, self.convertSettings.hasNormals, self.convertSettings.hasAlpha, self.convertSettings.halfPrecision, listIndex)
 
         self.processFinishedCB(False, "") 
 
