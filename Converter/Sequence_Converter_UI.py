@@ -192,7 +192,7 @@ class ConverterUI:
 
         self.applicationPath += os.sep
 
-        if (sys.platform == "darwin"):
+        if (sys.platform == "darwin") and (getattr(sys, 'frozen', False)):
             self.resourcesPath = os.path.abspath(self.applicationPath + "../Resources/")
         else:
             self.resourcesPath = os.path.join(self.applicationPath, "resources") + os.sep
