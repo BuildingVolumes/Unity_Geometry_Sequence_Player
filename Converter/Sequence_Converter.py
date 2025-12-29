@@ -122,10 +122,56 @@ class SequenceConverter:
             for model in self.convertSettings.modelPaths:
                 self.convert_model(model)            
         else:
+            if(self.convertSettings.halfPrecision): # The prepass is pretty slow, so we only do it if needed
+                self.prepass_models(self.convertSettings.modelPaths)
             # Process the first model to establish sequence attributes (Pointcloud or Mesh, has UVs? Normals?)
             self.convert_model(self.convertSettings.modelPaths[0]) 
             self.modelPool = ThreadPool(processes = threads)
             self.modelPool.map_async(self.convert_model, self.convertSettings.modelPaths)
+
+    def prepass_models(self, modelPaths):
+
+        if(self.terminateProcessing):
+            self.processFinishedCB(False, "")
+            return
+
+        ms = ml.MeshSet()
+
+        self.lockLoadMeshLock()
+
+        combinedBoundsCenter = [0,0,0]
+        combinedBoundsSize = [0,0,0]
+
+        for file in modelPaths:
+            inputFile = os.path.join(self.convertSettings.inputPath, file)
+            try:
+                ms.load_new_mesh(inputFile)
+            except:
+                self.unlockLoadMeshLock()
+                self.processFinishedCB(True, "Error opening file: " + inputFile)
+                return
+
+            if(self.terminateProcessing):
+                self.processFinishedCB(False, "")
+                self.unlockLoadMeshLock()
+                return
+
+            bounds = ms.current_mesh().bounding_box()
+            boundsCenter = bounds.center().astype(dtype=np.float32)
+            combinedBoundsCenter += boundsCenter
+            combinedBoundsSize = np.array([
+                max(bounds.dim_x(), combinedBoundsSize[0]),
+                max(bounds.dim_y(), combinedBoundsSize[1]),
+                max(bounds.dim_z(), combinedBoundsSize[2])
+            ])
+            ms.clear() # Keep memory usage at bay
+
+        combinedBoundsCenter[0] *= -1 # Flip X axis to match Unity coordinate system
+        combinedBoundsCenter /= len(modelPaths)
+
+        self.unlockLoadMeshLock()
+
+        self.convertSettings.metaData.set_metadata_maxbounds(combinedBoundsSize, combinedBoundsCenter)
 
     def convert_model(self, file):
 
@@ -343,12 +389,17 @@ class SequenceConverter:
             normals[:,0] *= -1
 
             if(self.convertSettings.halfPrecision):
-                boundsCenter = bounds.center().astype(dtype=np.float32)
-                boundsSize = np.array([bounds.dim_x(), bounds.dim_y(), bounds.dim_z()]).astype(dtype=np.float32)
+                # We already did a prepass to calculate the max bounds
+                boundsSize = self.convertSettings.metaData.boundsSize
+                boundsCenter = self.convertSettings.metaData.boundsCenter
                 vertices = vertices - boundsCenter
                 vertices = vertices / boundsSize
                 vertices = vertices.astype(dtype=np.float16, casting='same_kind')
-
+            else:
+                # We still need to calculate the max bounds
+                boundsSize = np.array([bounds.dim_x(), bounds.dim_y(), bounds.dim_z()])
+                boundsCenter = bounds.center()
+                self.convertSettings.metaData.set_metadata_maxbounds(boundsSize, boundsCenter)
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
             if(self.convertSettings.halfPrecision):
@@ -413,7 +464,7 @@ class SequenceConverter:
 
             f.write(bytes(body))
 
-        self.convertSettings.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, bounds, geoType, self.convertSettings.hasUVs, self.convertSettings.hasNormals, self.convertSettings.hasAlpha, self.convertSettings.halfPrecision, listIndex)
+        self.convertSettings.metaData.set_metadata_Model(vertexCount, indiceCount, headerSize, geoType, self.convertSettings.hasUVs, self.convertSettings.hasNormals, self.convertSettings.hasAlpha, self.convertSettings.halfPrecision, listIndex)
 
         self.processFinishedCB(False, "") 
 

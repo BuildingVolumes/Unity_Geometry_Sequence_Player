@@ -186,6 +186,10 @@ class ConverterUI:
         convertSettings.mergePoints = self.mergePoints
         convertSettings.mergeDistance = self.mergeDistance
 
+        if (self.halfPrecision):
+            self.info_text_set("Preprocessing models for half-precision conversion...")
+            # Preprocessing the models locks the main thread, so we need to render a frame to update the UI first
+            dpg.render_dearpygui_frame()
         self.converter.start_conversion(convertSettings, self.single_conversion_finished_cb)
 
         self.info_text_set("Converting...")

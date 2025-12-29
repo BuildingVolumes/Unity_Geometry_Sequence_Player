@@ -62,7 +62,7 @@ class MetaData():
 
         return asDict
 
-    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, bounds, geometryType, hasUV, hasNormals, hasAlpha, halfPrecision, listIndex):
+    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, geometryType, hasUV, hasNormals, hasAlpha, halfPrecision, listIndex):
 
         self.metaDataLock.acquire()
 
@@ -78,15 +78,22 @@ class MetaData():
         if(indiceCount > self.maxIndiceCount):
             self.maxIndiceCount = indiceCount
 
-        self.boundsCenter = bounds.center().tolist()
-        self.boundsSize = [bounds.dim_x(), bounds.dim_y(), bounds.dim_z()]
-
-        # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
-        self.boundsCenter[0] *= -1 # Min X
-
         self.headerSizes[listIndex] = headerSize
         self.verticeCounts[listIndex] = vertexCount
         self.indiceCounts[listIndex] = indiceCount
+
+        self.metaDataLock.release()
+
+    def set_metadata_maxbounds(self, newBoundsSize, newBoundsCenter):
+
+        self.metaDataLock.acquire()
+
+        self.boundsSize = [
+            max(newBoundsSize[0], self.boundsSize[0]),
+            max(newBoundsSize[1], self.boundsSize[1]),
+            max(newBoundsSize[2], self.boundsSize[2])
+        ]
+        self.boundsCenter += newBoundsCenter
 
         self.metaDataLock.release()
 
@@ -115,6 +122,10 @@ class MetaData():
     def write_metaData(self, outputDir):
 
         self.metaDataLock.acquire()
+        if (not self.halfPrecision): # we already did that during the prepass
+            # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
+            self.boundsCenter[0] *= -1 # Min X
+            self.boundsCenter = [x / len(self.headerSizes) for x in self.boundsCenter] # Average the center over the number of frames/models
 
         outputPath = outputDir + "/sequence.json"
         content = self.get_as_dict()
