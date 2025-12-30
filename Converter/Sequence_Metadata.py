@@ -49,8 +49,16 @@ class MetaData():
             "halfPrecision": self.halfPrecision,
             "maxVertexCount": self.maxVertexCount,
             "maxIndiceCount" : self.maxIndiceCount,
-            "boundsCenter" : self.boundsCenter,
-            "boundsSize" : self.boundsSize,
+            "boundsCenter" : { # Export bounds as dicts for easier JSON parsing to Vector3 in Unity
+                "x" : self.boundsCenter[0],
+                "y" : self.boundsCenter[1],
+                "z" : self.boundsCenter[2]
+            },
+            "boundsSize" : {
+                "x" : self.boundsSize[0],
+                "y" : self.boundsSize[1],
+                "z" : self.boundsSize[2]
+            },
             "textureWidth" : self.textureWidth,
             "textureHeight" : self.textureHeight,
             "textureSizeDDS" : self.textureSizeDDS,
