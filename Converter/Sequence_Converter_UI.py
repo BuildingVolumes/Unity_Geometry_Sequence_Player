@@ -1,6 +1,9 @@
 import os
 import sys
 import re
+import multiprocessing
+if getattr(sys, 'frozen', False):
+    multiprocessing.freeze_support()  # for PyInstaller support
 import configparser
 from threading import Event
 from threading import Lock
@@ -28,7 +31,9 @@ class ConverterUI:
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE EXECUTABLE ++++++++++++++++++++++++++++++++++
     #Use this prompt in the terminal to package this script into a single executable for your system
     #You need to have PyInstaller installed in your local environment
-    # pyinstaller Sequence_Converter_UI.py --collect-all=pymeshlab --collect-all=numpy --icon=resources/logo.ico -F 
+    # pyinstaller Sequence_Converter_UI.py --collect-all=pymeshlab --collect-all=numpy --icon=resources/logo.ico -F
+    ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE MACOS APP  ++++++++++++++++++++++++++++++++++
+    # pyinstaller Sequence_Converter_UI.py --icon=resources/logo.icns --windowed --strip
 
     isRunning = False
     conversionFinished = False
@@ -185,10 +190,14 @@ class ConverterUI:
         elif __file__:
             self.applicationPath = os.path.abspath(os.path.dirname(__file__))
 
-        self.applicationPath += "\\"
+        self.applicationPath += os.sep
 
-        self.resourcesPath = self.applicationPath + "resources\\"
-        self.configPath = self.resourcesPath + "config.ini"
+        if (sys.platform == "darwin") and (getattr(sys, 'frozen', False)):
+            self.resourcesPath = os.path.abspath(self.applicationPath + "../Resources/")
+        else:
+            self.resourcesPath = os.path.join(self.applicationPath, "resources") + os.sep
+
+        self.configPath = os.path.join(self.resourcesPath, "config.ini")
         self.config = configparser.ConfigParser()
 
     def open_file_dialog(self, path):
@@ -261,7 +270,7 @@ class ConverterUI:
     def set_proposed_output_files(self, input_path):
 
         if(len(self.outputSequencePath) < 1 or self.outputSequencePath == self.noPathWarning):
-            self.proposedOutputPath = input_path + "\\converted"
+            self.proposedOutputPath = os.path.join(input_path, "converted")
             self.output_path_label_set("Proposed path: " + self.proposedOutputPath)
 
     def set_output_files(self, new_output_path):
@@ -513,5 +522,6 @@ class ConverterUI:
         dpg.destroy_context()
 
 if (__name__ == '__main__'):
+    Tk().withdraw() # make sure Tkinter is loaded before starting DearPyGUI -- e.g. https://github.com/python/cpython/issues/90731
     UI = ConverterUI()
     UI.RunUI()
