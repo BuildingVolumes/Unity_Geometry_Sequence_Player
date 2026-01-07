@@ -15,11 +15,7 @@ toc: true
 
 ### Version 1.2.1
 
-Version 1.2.1
-
 This version contains a small improvement for the rendering bounds of Sequences. The bounds were not correctly calculated in previous version, leading to the sequence not being correctly culled from the camera view.
-
-Fixes: #9
 
 ⬇️ Please also update the Geometry Sequence Player package to the newest version!
 
