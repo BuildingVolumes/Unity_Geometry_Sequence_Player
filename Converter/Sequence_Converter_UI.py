@@ -28,11 +28,14 @@ class ConverterUI:
     save_normals_ID = 0
     generate_normals_ID = 0
 
-    ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE EXECUTABLE ++++++++++++++++++++++++++++++++++
+    ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE WINDOWS EXECUTABLE ++++++++++++++++++++++++++++++++++
     #Use this prompt in the terminal to package this script into a single executable for your system
     #You need to have PyInstaller installed in your local environment
-    # pyinstaller Sequence_Converter_UI.py --collect-all=pymeshlab --collect-all=numpy --icon=resources/logo.ico -F
+    # pyinstaller Sequence_Converter_UI.py --icon=resources/logo.ico -F
+    
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE MACOS APP  ++++++++++++++++++++++++++++++++++
+    # Use this prompt in the terminal to package this script into a single macOS app
+    # Please note that texture conversion is not yet supported on macOS!
     # pyinstaller Sequence_Converter_UI.py --icon=resources/logo.icns --windowed --strip
 
     isRunning = False
@@ -184,7 +187,12 @@ class ConverterUI:
 
     def InitDefaultPaths(self):
     
-        # determine if application is a script file or frozen exe and get the executable path
+        # Determine on what platform we are running (macOS or Windows)
+        if (sys.platform != "darwin") and (sys.platform != "win32"):
+            print("Your platform is currently not supported! The Sequence Converter supports Windows and macOS (partially)")
+            sys.exit(1)
+
+        # Determine if application is a script file or frozen exe and get the executable path
         if getattr(sys, 'frozen', False):
             self.applicationPath = os.path.abspath(os.path.dirname(sys.executable))
         elif __file__:
@@ -192,6 +200,7 @@ class ConverterUI:
 
         self.applicationPath += os.sep
 
+        # Determine the resources path depending on the OS
         if (sys.platform == "darwin") and (getattr(sys, 'frozen', False)):
             self.resourcesPath = os.path.abspath(self.applicationPath + "../Resources/")
         else:
