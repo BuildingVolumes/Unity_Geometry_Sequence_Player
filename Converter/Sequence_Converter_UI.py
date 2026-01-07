@@ -81,7 +81,7 @@ class ConverterUI:
             selectedDir = self.open_file_dialog(self.inputSequencePath)
         else:
             selectedDir = self.open_file_dialog(self.outputSequencePath)
-
+        
         self.set_output_files(selectedDir)
 
     def cancel_processing_cb(self):
@@ -129,7 +129,7 @@ class ConverterUI:
 
         if(self.isRunning):
             return
-
+        
         self.terminationSignal.clear()
 
         self.info_text_clear()
@@ -147,7 +147,7 @@ class ConverterUI:
             if not (os.path.exists(self.proposedOutputPath)):
                 os.mkdir(self.proposedOutputPath)
 
-        self.totalFileCount =  len(self.modelPathList)
+        self.totalFileCount =  len(self.modelPathList) 
         if(self.generateASTC or self.generateDDS):
             self.totalFileCount += len(self.imagePathList)
         self.processedFileCount = 0
@@ -183,7 +183,7 @@ class ConverterUI:
     # --- File Handeling ---
 
     def InitDefaultPaths(self):
-
+    
         # determine if application is a script file or frozen exe and get the executable path
         if getattr(sys, 'frozen', False):
             self.applicationPath = os.path.abspath(os.path.dirname(sys.executable))
@@ -202,9 +202,9 @@ class ConverterUI:
 
     def open_file_dialog(self, path):
         Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-
+        
         if(path is None):
-            new_input_path = askdirectory()
+            new_input_path = askdirectory() 
         else:
             new_input_path = askdirectory(initialdir=path, )
 
@@ -229,7 +229,7 @@ class ConverterUI:
 
             self.inputPathValid = True
             self.write_path_string("input", new_input_path)
-
+            
         else:
             self.info_text_clear()
             self.error_text_set(res)
@@ -240,7 +240,7 @@ class ConverterUI:
                 return "Folder does not exist!"
 
             files = os.listdir(input_path)
-
+            
             #Sort the files into model and images
             for file in files:
                 splitted_path = file.split(".")
@@ -248,7 +248,7 @@ class ConverterUI:
 
                 if(file_ending in self.validModelTypes):
                     self.modelPathList.append(file)
-
+                
                 elif(file_ending in self.validImageTypes):
                     self.imagePathList.append(file)
 
@@ -257,7 +257,7 @@ class ConverterUI:
 
             if(len(self.modelPathList) < 1 and len(self.imagePathList) < 1):
                 return "No model/image files found in folder!"
-
+            
             if(len(self.imagePathList) > 1):
                 self.convertToSRGB = self.converter.get_image_gamme_encoded(os.path.join(input_path, self.imagePathList[0]))
                 self.set_SRGB_enabled(self.convertToSRGB)
@@ -317,13 +317,13 @@ class ConverterUI:
 
     def read_path_string(self, key):
         return self.config['Paths'][key]
-
+    
     def read_settings_string(self, key):
         return self.config['Settings'][key]
-
+    
     def read_config_bool(self, key):
         return self.config['Settings'].getboolean(key)
-
+    
     def write_path_string(self, key, value):
         self.config['Paths'][key] = value
 
@@ -378,7 +378,7 @@ class ConverterUI:
 
         self.progressbarLock.release()
 
-    def finish_conversion(self):
+    def finish_conversion(self):             
         self.converter.finish_conversion(not self.terminationSignal.is_set())
 
         if(self.terminationSignal.is_set()):
@@ -386,7 +386,7 @@ class ConverterUI:
         else:
             self.info_text_set("Finished!")
         self.set_progressbar(0)
-
+        
         self.isRunning = False
 
     def set_progressbar(self, progress):
@@ -442,12 +442,12 @@ class ConverterUI:
         dpg.configure_app(manual_callback_management=True)
         dpg.create_viewport(height=500, width=500, title="Geometry Sequence Converter")
         dpg.setup_dearpygui()
-
+        
         with dpg.window(label="Geometry Sequence Converter", tag="main_window", min_size= [500, 500]):
-
+            
             dpg.add_button(label="Select Input Directory", callback=lambda:self.open_input_dir_cb())
             self.text_input_Dir_ID = dpg.add_text(self.inputSequencePath, wrap=450)
-
+            
             dpg.add_spacer(height=40)
 
             dpg.add_button(label="Select Output Directory", callback=lambda:self.open_output_dir_cb())
@@ -457,11 +457,11 @@ class ConverterUI:
 
             dpg.add_text("General settings:")
             self.save_normals_ID = dpg.add_checkbox(label="Save normals", default_value=self.save_normals, callback=self.set_normals_enabled_cb)
-
+            
             dpg.add_spacer(height=5)
 
             with dpg.collapsing_header(label="Pointcloud settings", default_open=False) as header_pcSettings_ID:
-
+                
                 with dpg.group(horizontal=True):
                     self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
                     self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
@@ -471,24 +471,24 @@ class ConverterUI:
                     self.merge_distance_ID = dpg.add_input_float(label= " ", default_value=self.mergeDistance , callback=self.set_Merge_Distance_cb, min_value=0, width= 200)
 
                 self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
-
+            
             dpg.add_spacer(height=5)
 
             with dpg.collapsing_header(label="Texture settings", default_open=False) as header_textureSettings_ID:
                 dpg.add_checkbox(label="Generate textures for desktop devices (DDS)", default_value=self.generateDDS, callback=self.set_DDS_enabled_cb)
                 dpg.add_checkbox(label="Generate textures mobile devices (ASTC)", default_value=self.generateASTC, callback=self.set_ASTC_enabled_cb)
-                self.srgb_check_ID = dpg.add_checkbox(label="Convert to SRGB profile", default_value=self.convertToSRGB, callback=self.set_SRGB_enabled_cb)
+                self.srgb_check_ID = dpg.add_checkbox(label="Convert to SRGB profile", default_value=self.convertToSRGB, callback=self.set_SRGB_enabled_cb)            
 
             self.text_error_log_ID = dpg.add_text("", color=[255, 0, 0], wrap=450)
             self.text_info_log_ID = dpg.add_text("", color=[255, 255, 255], wrap=450)
-
+            
             self.progress_bar_ID = dpg.add_progress_bar(default_value=0, width=470)
             dpg.add_spacer(height=5)
 
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Start Conversion", callback=lambda:self.start_conversion_cb())
                 dpg.add_button(label="Cancel", callback=lambda:self.cancel_processing_cb())
-                self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")
+                self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")        
 
         dpg.show_viewport()
         dpg.set_primary_window("main_window", True)
@@ -503,11 +503,11 @@ class ConverterUI:
             dpg.render_dearpygui_frame()
             jobs = dpg.get_callback_queue()
             dpg.run_callbacks(jobs)
-
+            
             if(dpg.is_item_left_clicked(header_pcSettings_ID)):
                 pointcloud_header_open = not pointcloud_header_open
                 self.set_viewport_height(pointcloud_header_open, texture_header_open)
-
+            
             if(dpg.is_item_left_clicked(header_textureSettings_ID)):
                 texture_header_open = not texture_header_open
                 self.set_viewport_height(pointcloud_header_open, texture_header_open)
@@ -515,7 +515,7 @@ class ConverterUI:
             if(self.conversionFinished):
                 self.finish_conversion()
                 self.conversionFinished = False
-
+            
         # Shutdown threads when they are still running
         self.cancel_processing_cb()
         self.save_config()
