@@ -33,7 +33,7 @@ class MetaData():
     indiceCounts = []
 
     #Ensure that this class can be called from multiple threads
-    metaDataLock = Lock() 
+    metaDataLock = Lock()
 
     def get_as_dict(self):
         boundsCenter = [
@@ -124,7 +124,7 @@ class MetaData():
         self.metaDataLock.acquire()
 
         if(height > self.textureHeight):
-            self.textureHeight = height 
+            self.textureHeight = height
 
         if(width > self.textureWidth):
             self.textureWidth = width
@@ -148,6 +148,6 @@ class MetaData():
         outputPath = outputDir + "/sequence.json"
         content = self.get_as_dict()
         with open(outputPath, 'w') as f:
-            json.dump(content, f)    
+            json.dump(content, f)
 
         self.metaDataLock.release()
