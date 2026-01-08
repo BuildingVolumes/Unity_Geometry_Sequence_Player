@@ -22,8 +22,8 @@ class MetaData():
     useCompression = False
     maxVertexCount = 0
     maxIndiceCount = 0
-    boundsCenter = [0,0,0]
-    boundsSize = [1,1,1]
+    boundsMin = [float('inf'),float('inf'),float('inf')]
+    boundsMax = [float('-inf'),float('-inf'),float('-inf')]
     textureWidth = 0
     textureHeight = 0
     textureSizeDDS = 0
@@ -36,6 +36,19 @@ class MetaData():
     metaDataLock = Lock() 
 
     def get_as_dict(self):
+        boundsCenter = [
+            (self.boundsMax[0] + self.boundsMin[0]) / 2,
+            (self.boundsMax[1] + self.boundsMin[1]) / 2,
+            (self.boundsMax[2] + self.boundsMin[2]) / 2,
+        ]
+        # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
+        boundsCenter[0] *= -1
+
+        boundsSize = [
+            self.boundsMax[0] - self.boundsMin[0],
+            self.boundsMax[1] - self.boundsMin[1],
+            self.boundsMax[2] - self.boundsMin[2],
+        ]
 
         asDict = {
             "geometryType" : int(self.geometryType),
@@ -48,14 +61,14 @@ class MetaData():
             "maxVertexCount": self.maxVertexCount,
             "maxIndiceCount" : self.maxIndiceCount,
             "boundsCenter" : { # Export bounds as dicts for easier JSON parsing to Vector3 in Unity
-                "x" : self.boundsCenter[0],
-                "y" : self.boundsCenter[1],
-                "z" : self.boundsCenter[2]
+                "x" : boundsCenter[0],
+                "y" : boundsCenter[1],
+                "z" : boundsCenter[2]
             },
             "boundsSize" : {
-                "x" : self.boundsSize[0],
-                "y" : self.boundsSize[1],
-                "z" : self.boundsSize[2]
+                "x" : boundsSize[0],
+                "y" : boundsSize[1],
+                "z" : boundsSize[2]
             },
             "textureWidth" : self.textureWidth,
             "textureHeight" : self.textureHeight,
@@ -89,16 +102,20 @@ class MetaData():
 
         self.metaDataLock.release()
 
-    def set_metadata_maxbounds(self, newBoundsSize, newBoundsCenter):
+    def update_metadata_maxbounds(self, newBoundsMin, newBoundsMax):
 
         self.metaDataLock.acquire()
 
-        self.boundsSize = [
-            max(newBoundsSize[0], self.boundsSize[0]),
-            max(newBoundsSize[1], self.boundsSize[1]),
-            max(newBoundsSize[2], self.boundsSize[2])
+        self.boundsMin = [
+            min(self.boundsMin[0], newBoundsMin[0]),
+            min(self.boundsMin[1], newBoundsMin[1]),
+            min(self.boundsMin[2], newBoundsMin[2]),
         ]
-        self.boundsCenter += newBoundsCenter
+        self.boundsMax = [
+            max(self.boundsMax[0], newBoundsMax[0]),
+            max(self.boundsMax[1], newBoundsMax[1]),
+            max(self.boundsMax[2], newBoundsMax[2]),
+        ]
 
         self.metaDataLock.release()
 
@@ -127,10 +144,6 @@ class MetaData():
     def write_metaData(self, outputDir):
 
         self.metaDataLock.acquire()
-        if (not self.useCompression): # we already did that during the prepass
-            # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
-            self.boundsCenter[0] *= -1 # Min X
-            self.boundsCenter = [x / len(self.headerSizes) for x in self.boundsCenter] # Average the center over the number of frames/models
 
         outputPath = outputDir + "/sequence.json"
         content = self.get_as_dict()

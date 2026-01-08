@@ -138,8 +138,8 @@ class SequenceConverter:
 
         self.lockLoadMeshLock()
 
-        combinedBoundsCenter = [0,0,0]
-        combinedBoundsSize = [0,0,0]
+        combinedBoundsMin = [float('inf'),float('inf'),float('inf')]
+        combinedBoundsMax = [float('-inf'),float('-inf'),float('-inf')]
 
         for file in modelPaths:
             inputFile = os.path.join(self.convertSettings.inputPath, file)
@@ -156,12 +156,17 @@ class SequenceConverter:
                 return
 
             bounds = ms.current_mesh().bounding_box()
-            boundsCenter = bounds.center().astype(dtype=np.float32)
-            combinedBoundsCenter += boundsCenter
-            combinedBoundsSize = np.array([
-                max(bounds.dim_x(), combinedBoundsSize[0]),
-                max(bounds.dim_y(), combinedBoundsSize[1]),
-                max(bounds.dim_z(), combinedBoundsSize[2])
+            bMin = bounds.min().astype(dtype=np.float32)
+            bMax = bounds.max().astype(dtype=np.float32)
+            combinedBoundsMin = np.array([
+                min(combinedBoundsMin[0], bMin[0]),
+                min(combinedBoundsMin[1], bMin[1]),
+                min(combinedBoundsMin[2], bMin[2]),
+            ])
+            combinedBoundsMax = np.arrap([
+                max(combinedBoundsMax[0], bMax[0]),
+                max(combinedBoundsMax[1], bMax[1]),
+                max(combinedBoundsMax[2], bMax[2]),
             ])
             ms.clear() # Keep memory usage at bay
 
@@ -170,7 +175,7 @@ class SequenceConverter:
 
         self.unlockLoadMeshLock()
 
-        self.convertSettings.metaData.set_metadata_maxbounds(combinedBoundsSize, combinedBoundsCenter)
+        self.convertSettings.metaData.update_metadata_maxbounds(combinedBoundsMin, combinedBoundsMax)
 
     def convert_model(self, file):
 
@@ -396,9 +401,10 @@ class SequenceConverter:
                 vertices = vertices.astype(dtype=np.float16, casting='same_kind')
             else:
                 # We still need to calculate the max bounds
-                boundsSize = np.array([bounds.dim_x(), bounds.dim_y(), bounds.dim_z()])
-                boundsCenter = bounds.center()
-                self.convertSettings.metaData.set_metadata_maxbounds(boundsSize, boundsCenter)
+                self.convertSettings.metaData.update_metadata_maxbounds(
+                    bounds.min().astype(dtype=np.float32),
+                    bounds.max().astype(dtype=np.float32)
+                )
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
             if(self.convertSettings.useCompression):
