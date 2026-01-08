@@ -27,8 +27,7 @@ class ConverterUI:
     decimation_percentage_ID = 0
     save_normals_ID = 0
     generate_normals_ID = 0
-    skip_alpha_channel_ID = 0
-    use_half_precision_float_ID = 0
+    use_compression_ID = 0
 
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE WINDOWS EXECUTABLE ++++++++++++++++++++++++++++++++++
     #Use this prompt in the terminal to package this script into a single executable for your system
@@ -62,8 +61,7 @@ class ConverterUI:
     convertToSRGB = False
     decimatePointcloud = False
     generateNormals = False
-    hasAlpha = True
-    halfPrecision = False
+    useCompression = False
     save_normals = False
     decimatePercentage = 100
     mergePoints = False
@@ -120,13 +118,9 @@ class ConverterUI:
         dpg.set_value(self.save_normals_ID, app_data)
         self.write_settings_string("generateNormals", str(app_data))
 
-    def set_Has_Alpha_Channel_cb(self, sender, app_data):
-        self.hasAlpha = app_data
-        self.write_settings_string("hasAlpha", str(app_data))
-
-    def set_Half_Precision_Float_cb(self, sender, app_data):
-        self.halfPrecision = app_data
-        self.write_settings_string("halfPrecision", str(app_data))
+    def set_Use_Compression_cb(self, sender, app_data):
+        self.useCompression = app_data
+        self.write_settings_string("useCompression", str(app_data))
 
     def set_normals_enabled_cb(self, sender, app_data):
         self.save_normals = app_data
@@ -181,12 +175,11 @@ class ConverterUI:
         convertSettings.decimatePercentage = self.decimatePercentage
         convertSettings.saveNormals = self.save_normals
         convertSettings.generateNormals = self.generateNormals
-        convertSettings.hasAlpha = self.hasAlpha
-        convertSettings.halfPrecision = self.halfPrecision
+        convertSettings.useCompression = self.useCompression
         convertSettings.mergePoints = self.mergePoints
         convertSettings.mergeDistance = self.mergeDistance
 
-        if (self.halfPrecision):
+        if (self.useCompression):
             self.info_text_set("Preprocessing models for half-precision conversion...")
             # Preprocessing the models locks the main thread, so we need to render a frame to update the UI first
             dpg.render_dearpygui_frame()
@@ -498,8 +491,7 @@ class ConverterUI:
                     self.merge_distance_ID = dpg.add_input_float(label= " ", default_value=self.mergeDistance , callback=self.set_Merge_Distance_cb, min_value=0, width= 200)
 
                 self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
-                self.has_alpha_ID = dpg.add_checkbox(label= "Has Alpha channel", default_value=self.hasAlpha, callback=self.set_Has_Alpha_Channel_cb)
-                self.half_precision_ID = dpg.add_checkbox(label= "Use half-precision floats for coordinates", default_value=self.halfPrecision, callback=self.set_Half_Precision_Float_cb)
+                self.use_compression_ID = dpg.add_checkbox(label= "Use Compression", default_value=self.useCompression, callback=self.set_Use_Compression_cb)
 
             dpg.add_spacer(height=5)
 

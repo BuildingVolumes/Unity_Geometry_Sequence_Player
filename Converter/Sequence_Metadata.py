@@ -19,8 +19,7 @@ class MetaData():
     ASTC = False
     hasUVs = False
     hasNormals = False
-    hasAlpha = True
-    halfPrecision = False
+    useCompression = False
     maxVertexCount = 0
     maxIndiceCount = 0
     boundsCenter = [0,0,0]
@@ -45,8 +44,7 @@ class MetaData():
             "ASTC" : self.ASTC,
             "hasUVs" : self.hasUVs,
             "hasNormals" : self.hasNormals,
-            "hasAlpha" : self.hasAlpha,
-            "halfPrecision": self.halfPrecision,
+            "useCompression" : self.useCompression,
             "maxVertexCount": self.maxVertexCount,
             "maxIndiceCount" : self.maxIndiceCount,
             "boundsCenter" : { # Export bounds as dicts for easier JSON parsing to Vector3 in Unity
@@ -70,15 +68,14 @@ class MetaData():
 
         return asDict
 
-    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, geometryType, hasUV, hasNormals, hasAlpha, halfPrecision, listIndex):
+    def set_metadata_Model(self, vertexCount, indiceCount, headerSize, geometryType, hasUV, hasNormals, useCompressions, listIndex):
 
         self.metaDataLock.acquire()
 
         self.geometryType = geometryType
         self.hasUVs = hasUV
         self.hasNormals = hasNormals
-        self.hasAlpha = hasAlpha
-        self.halfPrecision = halfPrecision
+        self.useCompression = useCompressions
 
         if(vertexCount > self.maxVertexCount):
             self.maxVertexCount = vertexCount
@@ -130,7 +127,7 @@ class MetaData():
     def write_metaData(self, outputDir):
 
         self.metaDataLock.acquire()
-        if (not self.halfPrecision): # we already did that during the prepass
+        if (not self.useCompression): # we already did that during the prepass
             # Flip bounds x axis, as we also flip the model's x axis to match Unity's coordinate system
             self.boundsCenter[0] *= -1 # Min X
             self.boundsCenter = [x / len(self.headerSizes) for x in self.boundsCenter] # Average the center over the number of frames/models
