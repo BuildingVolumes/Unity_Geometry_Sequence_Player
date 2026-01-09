@@ -156,22 +156,19 @@ class SequenceConverter:
                 return
 
             bounds = ms.current_mesh().bounding_box()
-            bMin = bounds.min().astype(dtype=np.float32)
-            bMax = bounds.max().astype(dtype=np.float32)
+            bMin = bounds.min()
+            bMax = bounds.max()
             combinedBoundsMin = np.array([
                 min(combinedBoundsMin[0], bMin[0]),
                 min(combinedBoundsMin[1], bMin[1]),
                 min(combinedBoundsMin[2], bMin[2]),
             ])
-            combinedBoundsMax = np.arrap([
+            combinedBoundsMax = np.array([
                 max(combinedBoundsMax[0], bMax[0]),
                 max(combinedBoundsMax[1], bMax[1]),
                 max(combinedBoundsMax[2], bMax[2]),
             ])
             ms.clear() # Keep memory usage at bay
-
-        combinedBoundsCenter[0] *= -1 # Flip X axis to match Unity coordinate system
-        combinedBoundsCenter /= len(modelPaths)
 
         self.unlockLoadMeshLock()
 
@@ -394,16 +391,15 @@ class SequenceConverter:
 
             if(self.convertSettings.useCompression):
                 # We already did a prepass to calculate the max bounds
-                boundsSize = self.convertSettings.metaData.boundsSize
-                boundsCenter = self.convertSettings.metaData.boundsCenter
+                boundsCenter, boundsSize = self.convertSettings.metaData.get_metadata_bounds()
                 vertices = vertices - boundsCenter
                 vertices = vertices / boundsSize
                 vertices = vertices.astype(dtype=np.float16, casting='same_kind')
             else:
                 # We still need to calculate the max bounds
                 self.convertSettings.metaData.update_metadata_maxbounds(
-                    bounds.min().astype(dtype=np.float32),
-                    bounds.max().astype(dtype=np.float32)
+                    bounds.min(),
+                    bounds.max(),
                 )
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
