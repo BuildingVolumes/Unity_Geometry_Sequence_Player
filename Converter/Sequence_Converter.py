@@ -37,7 +37,7 @@ class SequenceConverterSettings:
 
 class SequenceConverter:
 
-    convertSettings = SequenceConverterSettings()
+    convertSettings = None
     terminateProcessing = False
     debugMode = False
 
@@ -60,13 +60,40 @@ class SequenceConverter:
         if not self.debugMode:
             self.loadMeshLock.release()
 
-    def start_conversion(self, convertSettings, processFinishedCB):
-
+    def set_conversion_settings(self, convertSettings, processFinishedCB):
         self.convertSettings = convertSettings
         self.terminateProcessing = False
         self.processFinishedCB = processFinishedCB
         self.debugMode = hasattr(sys, 'gettrace') and sys.gettrace() is not None
 
+        # Limit the threads if there are less models than threads or single-threading is needed
+        if(len(self.convertSettings.modelPaths) < self.convertSettings.maxThreads):
+            self.convertSettings.maxThreads = len(self.convertSettings.modelPaths)
+        elif self.convertSettings.generateNormals:
+            self.convertSettings.maxThreads = 1
+
+    def start_preprocessing(self):
+
+        if(self.convertSettings is None):
+            return False
+
+        # For the compression, we need to find out the min and max bounds of the
+        # sequence first. So we first load all models once to get the bounds.
+        # This prepass is pretty slow, so we only do it if needed
+        if self.debugMode:
+            for model in self.convertSettings.modelPaths:
+                self.calculate_min_max_bounds(model)
+        else:
+            get_bounds_pool = ThreadPool(processes = self.convertSettings.maxThreads)
+            get_bounds_pool.map_async(self.calculate_min_max_bounds, self.convertSettings.modelPaths)
+
+        return True
+
+    def start_conversion(self):
+
+        if(self.convertSettings is None):
+            return False
+        
         modelCount = len(self.convertSettings.modelPaths)
         self.convertSettings.metaData.headerSizes = [None] * modelCount
         self.convertSettings.metaData.verticeCounts = [None] * modelCount
@@ -76,6 +103,8 @@ class SequenceConverter:
             self.process_models()
         if(len(self.convertSettings.imagePaths) > 0):
             self.process_images()
+        
+        return True
 
     def terminate_conversion(self):
         self.terminateProcessing = True
@@ -107,28 +136,19 @@ class SequenceConverter:
     def write_metadata(self):
         self.convertSettings.metaData.write_metaData(self.convertSettings.outputPath)
 
-    def process_models(self):
-
-        if(len(self.convertSettings.modelPaths) < self.convertSettings.maxThreads):
-            threads = len(self.convertSettings.modelPaths)
-        elif self.convertSettings.generateNormals:
-            threads = 1
-        else:
-            threads = self.convertSettings.maxThreads
+    def process_models(self):        
 
         if self.debugMode:
             self.firstEstimation = True
             for model in self.convertSettings.modelPaths:
                 self.convert_model(model)
         else:
-            if(self.convertSettings.useCompression): # The prepass is pretty slow, so we only do it if needed
-                self.prepass_models(self.convertSettings.modelPaths)
             # Process the first model to establish sequence attributes (Pointcloud or Mesh, has UVs? Normals?)
             self.convert_model(self.convertSettings.modelPaths[0])
-            self.modelPool = ThreadPool(processes = threads)
+            self.modelPool = ThreadPool(processes = self.convertSettings.maxThreads)
             self.modelPool.map_async(self.convert_model, self.convertSettings.modelPaths)
 
-    def prepass_models(self, modelPaths):
+    def calculate_min_max_bounds(self, file):
 
         if(self.terminateProcessing):
             self.processFinishedCB(False, "")
@@ -141,38 +161,38 @@ class SequenceConverter:
         combinedBoundsMin = [float('inf'),float('inf'),float('inf')]
         combinedBoundsMax = [float('-inf'),float('-inf'),float('-inf')]
 
-        for file in modelPaths:
-            inputFile = os.path.join(self.convertSettings.inputPath, file)
-            try:
-                ms.load_new_mesh(inputFile)
-            except:
-                self.unlockLoadMeshLock()
-                self.processFinishedCB(True, "Error opening file: " + inputFile)
-                return
 
-            if(self.terminateProcessing):
-                self.processFinishedCB(False, "")
-                self.unlockLoadMeshLock()
-                return
+        inputPath = os.path.join(self.convertSettings.inputPath, file)
+        try:
+            ms.load_new_mesh(inputPath)
+        except:
+            self.unlockLoadMeshLock()
+            self.processFinishedCB(True, "Error opening file: " + inputPath)
+            return
 
-            bounds = ms.current_mesh().bounding_box()
-            bMin = bounds.min()
-            bMax = bounds.max()
-            combinedBoundsMin = np.array([
-                min(combinedBoundsMin[0], bMin[0]),
-                min(combinedBoundsMin[1], bMin[1]),
-                min(combinedBoundsMin[2], bMin[2]),
-            ])
-            combinedBoundsMax = np.array([
-                max(combinedBoundsMax[0], bMax[0]),
-                max(combinedBoundsMax[1], bMax[1]),
-                max(combinedBoundsMax[2], bMax[2]),
-            ])
-            ms.clear() # Keep memory usage at bay
+        bounds = ms.current_mesh().bounding_box()
+        bMin = bounds.min()
+        bMax = bounds.max()
+        combinedBoundsMin = np.array([
+            min(combinedBoundsMin[0], bMin[0]),
+            min(combinedBoundsMin[1], bMin[1]),
+            min(combinedBoundsMin[2], bMin[2]),
+        ])
+        combinedBoundsMax = np.array([
+            max(combinedBoundsMax[0], bMax[0]),
+            max(combinedBoundsMax[1], bMax[1]),
+            max(combinedBoundsMax[2], bMax[2]),
+        ])
+        ms.clear() # Keep memory usage at bay
 
         self.unlockLoadMeshLock()
 
-        self.convertSettings.metaData.update_metadata_maxbounds(combinedBoundsMin, combinedBoundsMax)
+        self.convertSettings.metaData.extend_bounds(combinedBoundsMin, combinedBoundsMax)
+        self.processFinishedCB(False, "")
+
+        if self.debugMode:
+            print("Pre-Processed file: " + str(self.convertSettings.modelPaths.index(file)))
+
 
     def convert_model(self, file):
 
@@ -330,6 +350,7 @@ class SequenceConverter:
             self.unlockLoadMeshLock()
             return
 
+        ms.clear() # Keep memory usage at bay
         self.unlockLoadMeshLock()
 
         #The meshlab exporter doesn't support all the features we need, so we export the files manually
@@ -397,10 +418,7 @@ class SequenceConverter:
                 vertices = vertices.astype(dtype=np.float16, casting='same_kind')
             else:
                 # We still need to calculate the max bounds
-                self.convertSettings.metaData.update_metadata_maxbounds(
-                    bounds.min(),
-                    bounds.max(),
-                )
+                self.convertSettings.metaData.extend_bounds(bounds.min(), bounds.max())
 
             verticePositionsBytes = np.frombuffer(vertices.tobytes(), dtype=np.uint8)
             if(self.convertSettings.useCompression):

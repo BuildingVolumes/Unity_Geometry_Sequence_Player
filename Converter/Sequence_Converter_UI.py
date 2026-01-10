@@ -40,11 +40,16 @@ class ConverterUI:
     # pyinstaller Sequence_Converter_UI.py --icon=resources/logo.icns --windowed --strip
 
     isRunning = False
+    preProcessFinished = False
     conversionFinished = False
     inputPathValid = False
     outputPathValid = False
+    preProcessRequired = False
     processedFileCount = 0
     totalFileCount = 0
+    geoFileCount = 0
+    imageFileCount = 0
+    preprocessFileCount = 0
 
     applicationPath = ""
     configPath = ""
@@ -156,10 +161,21 @@ class ConverterUI:
             if not (os.path.exists(self.proposedOutputPath)):
                 os.mkdir(self.proposedOutputPath)
 
-        self.totalFileCount =  len(self.modelPathList)
+        self.geoFileCount =  len(self.modelPathList)
+        
         if(self.generateASTC or self.generateDDS):
-            self.totalFileCount += len(self.imagePathList)
-        self.processedFileCount = 0
+            self.imageFileCount = len(self.imagePathList)
+        else:
+            self.imageFileCount = 0
+
+        if(self.useCompression):
+            self.preprocessFileCount = self.geoFileCount
+            self.preProcessRequired = True
+        else:
+            self.preprocessFileCount = 0
+
+        self.processedFileCount = 0        
+        self.totalFileCount = self.geoFileCount + self.imageFileCount + self.preprocessFileCount
 
         convertSettings = SequenceConverterSettings()
         convertSettings.modelPaths = self.modelPathList
@@ -179,20 +195,75 @@ class ConverterUI:
         convertSettings.mergePoints = self.mergePoints
         convertSettings.mergeDistance = self.mergeDistance
 
-        if (self.useCompression):
-            self.info_text_set("Preprocessing models for half-precision conversion...")
-            # Preprocessing the models locks the main thread, so we need to render a frame to update the UI first
-            dpg.render_dearpygui_frame()
-        self.converter.start_conversion(convertSettings, self.single_conversion_finished_cb)
+        self.converter.set_conversion_settings(convertSettings, self.single_conversion_finished_cb)
 
-        self.info_text_set("Converting...")
+        if (self.preProcessRequired):
+            self.info_text_set("Preprocessing models for compression...")
+            self.converter.start_preprocessing()
+
+        else:
+            self.process_models()
+
         self.set_progressbar(0)
         self.isRunning = True
 
+    def process_models(self):
+        self.info_text_set("Starting conversion...")
+        if self.converter.start_conversion() == False:
+            self.error_text_set("Error: Could not start conversion process!")
+            return False
 
     def single_conversion_finished_cb(self, error, errorText):
-        self.advance_progressbar(error, errorText)
+        self.handle_conversion_progress(error, errorText)
 
+    def handle_conversion_progress(self, error, errorText):
+
+        self.progressbarLock.acquire()
+        self.processedFileCount += 1
+
+        # In case we use preprocessing, start the conversion once preprocessing is done
+        if(self.preProcessRequired and self.processedFileCount == self.preprocessFileCount):
+            print("Pre-Processing finished")
+            self.preProcessFinished = True
+
+        if(error):
+            self.error_text_set(errorText)
+            self.cancel_processing_cb()
+            self.set_progressbar(1)
+            self.info_text_set("Error occurred during conversion: ")
+
+        else:
+            if(self.terminationSignal.is_set() == False):
+                self.set_progressbar(self.processedFileCount / self.totalFileCount)
+
+                status = "Converting"
+                if(self.processedFileCount <= self.preprocessFileCount):
+                    status = "Preprocessing"
+
+
+
+                self.info_text_set("Progress: {percentage} % ({mode}) ".format(percentage = str(int((self.processedFileCount / self.totalFileCount) * 100)), mode = status))
+
+            else:
+                self.set_progressbar(0)
+                self.info_text_set("Cancelling, please wait...")
+
+        if(self.processedFileCount == self.totalFileCount):
+            self.conversionFinished = True
+            print("Conversion finished")
+
+        self.progressbarLock.release()
+
+    def finish_conversion(self):
+        self.converter.finish_conversion(not self.terminationSignal.is_set())
+
+        if(self.terminationSignal.is_set()):
+            self.info_text_set("Canceled!")
+        else:
+            self.info_text_set("Finished!")
+        self.set_progressbar(0)
+
+        self.isRunning = False
 
     # --- File Handeling ---
 
@@ -331,6 +402,7 @@ class ConverterUI:
             self.config['Settings']['generateNormals'] = "false"
             self.config['Settings']['mergePoints'] = "false"
             self.config['Settings']['mergeDistance'] = "0.001"
+            self.config['Settings']['useCompression'] = "false"
             self.save_config()
 
         self.config.read(self.configPath)
@@ -372,43 +444,6 @@ class ConverterUI:
 
     # --- Main UI ---
 
-    def advance_progressbar(self, error, errorText):
-
-        self.progressbarLock.acquire()
-        self.processedFileCount += 1
-
-        if(error):
-            self.error_text_set(errorText)
-            self.cancel_processing_cb()
-            self.set_progressbar(1)
-            self.info_text_set("Error occurred during conversion: ")
-
-        else:
-            if(self.terminationSignal.is_set() == False):
-                self.set_progressbar(self.processedFileCount / self.totalFileCount)
-                self.info_text_set("Converting: " + str(self.processedFileCount) + " / " + str(self.totalFileCount))
-
-            else:
-                self.set_progressbar(0)
-                self.info_text_set("Cancelling")
-
-        if(self.processedFileCount == self.totalFileCount):
-            self.conversionFinished = True
-            print("Conversion finished")
-
-        self.progressbarLock.release()
-
-    def finish_conversion(self):
-        self.converter.finish_conversion(not self.terminationSignal.is_set())
-
-        if(self.terminationSignal.is_set()):
-            self.info_text_set("Canceled!")
-        else:
-            self.info_text_set("Finished!")
-        self.set_progressbar(0)
-
-        self.isRunning = False
-
     def set_progressbar(self, progress):
         dpg.set_value(self.progress_bar_ID, progress)
 
@@ -434,8 +469,8 @@ class ConverterUI:
         dpg.set_value(self.srgb_check_ID, enabled)
 
     def set_viewport_height(self, pointcloud_settings, texture_settings):
-        default_viewport_height = 450
-        pointcloud_settings_height = 70
+        default_viewport_height = 470
+        pointcloud_settings_height = 90
         textures_settings_height = 70
 
         height = default_viewport_height
@@ -458,6 +493,7 @@ class ConverterUI:
         self.generateASTC = self.read_config_bool("ASTC")
         self.decimatePointcloud = self.read_config_bool("decimatePointcloud")
         self.decimatePercentage = int(self.read_settings_string("decimatePercentage"))
+        self.useCompression = self.read_config_bool("useCompression")
 
         dpg.configure_app(manual_callback_management=True)
         dpg.create_viewport(height=500, width=500, title="Geometry Sequence Converter")
@@ -532,6 +568,10 @@ class ConverterUI:
             if(dpg.is_item_left_clicked(header_textureSettings_ID)):
                 texture_header_open = not texture_header_open
                 self.set_viewport_height(pointcloud_header_open, texture_header_open)
+
+            if(self.preProcessFinished):
+                self.process_models()
+                self.preProcessFinished = False
 
             if(self.conversionFinished):
                 self.finish_conversion()
