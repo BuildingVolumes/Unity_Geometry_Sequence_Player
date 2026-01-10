@@ -379,9 +379,14 @@ class SequenceConverter:
                 header += "property float z" + "\n"
 
             if(self.convertSettings.hasNormals):
-                header += "property float nx" + "\n"
-                header += "property float ny" + "\n"
-                header += "property float nz" + "\n"
+                if(self.convertSettings.useCompression):
+                    header += "property half nx" + "\n"
+                    header += "property half ny" + "\n"
+                    header += "property half nz" + "\n"
+                else:
+                    header += "property float nx" + "\n"
+                    header += "property float ny" + "\n"
+                    header += "property float nz" + "\n"
 
             if(self.convertSettings.isPointcloud == True):
                 header += "property uchar red" + "\n"
@@ -428,8 +433,17 @@ class SequenceConverter:
             byteCombination.append(verticePositionsBytes)
 
             if(self.convertSettings.hasNormals):
+
+                if(self.convertSettings.useCompression):
+                    #Squash normals into half precision for compression
+                    normals = normals.astype(dtype=np.float16, casting='same_kind')
+                
                 verticeNormalsBytes = np.frombuffer(normals.tobytes(), dtype=np.uint8)
-                verticeNormalsBytes = np.reshape(verticeNormalsBytes, (-1, 12))
+
+                if(self.convertSettings.useCompression):
+                    verticeNormalsBytes = np.reshape(verticeNormalsBytes, (-1, 6)) # 3 * 2 bytes per vertex
+                else:
+                    verticeNormalsBytes = np.reshape(verticeNormalsBytes, (-1, 12)) # 3 * 4 bytes per vertex
                 byteCombination.append(verticeNormalsBytes)
 
 
