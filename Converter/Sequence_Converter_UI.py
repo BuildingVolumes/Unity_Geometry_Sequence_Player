@@ -27,23 +27,29 @@ class ConverterUI:
     decimation_percentage_ID = 0
     save_normals_ID = 0
     generate_normals_ID = 0
+    use_compression_ID = 0
 
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE WINDOWS EXECUTABLE ++++++++++++++++++++++++++++++++++
     #Use this prompt in the terminal to package this script into a single executable for your system
     #You need to have PyInstaller installed in your local environment
     # pyinstaller Sequence_Converter_UI.py --icon=resources/logo.ico -F
-    
+
     ### +++++++++++++++++++++++++  PACKAGE INTO SINGLE MACOS APP  ++++++++++++++++++++++++++++++++++
     # Use this prompt in the terminal to package this script into a single macOS app
     # Please note that texture conversion is not yet supported on macOS!
     # pyinstaller Sequence_Converter_UI.py --icon=resources/logo.icns --windowed --strip
 
     isRunning = False
+    preProcessFinished = False
     conversionFinished = False
     inputPathValid = False
     outputPathValid = False
+    preProcessRequired = False
     processedFileCount = 0
     totalFileCount = 0
+    geoFileCount = 0
+    imageFileCount = 0
+    preprocessFileCount = 0
 
     applicationPath = ""
     configPath = ""
@@ -60,6 +66,7 @@ class ConverterUI:
     convertToSRGB = False
     decimatePointcloud = False
     generateNormals = False
+    useCompression = False
     save_normals = False
     decimatePercentage = 100
     mergePoints = False
@@ -84,7 +91,7 @@ class ConverterUI:
             selectedDir = self.open_file_dialog(self.inputSequencePath)
         else:
             selectedDir = self.open_file_dialog(self.outputSequencePath)
-        
+
         self.set_output_files(selectedDir)
 
     def cancel_processing_cb(self):
@@ -116,6 +123,10 @@ class ConverterUI:
         dpg.set_value(self.save_normals_ID, app_data)
         self.write_settings_string("generateNormals", str(app_data))
 
+    def set_Use_Compression_cb(self, sender, app_data):
+        self.useCompression = app_data
+        self.write_settings_string("useCompression", str(app_data))
+
     def set_normals_enabled_cb(self, sender, app_data):
         self.save_normals = app_data
         self.write_settings_string("saveNormals", str(app_data))
@@ -132,7 +143,7 @@ class ConverterUI:
 
         if(self.isRunning):
             return
-        
+
         self.terminationSignal.clear()
 
         self.info_text_clear()
@@ -150,10 +161,21 @@ class ConverterUI:
             if not (os.path.exists(self.proposedOutputPath)):
                 os.mkdir(self.proposedOutputPath)
 
-        self.totalFileCount =  len(self.modelPathList) 
+        self.geoFileCount =  len(self.modelPathList)
+        
         if(self.generateASTC or self.generateDDS):
-            self.totalFileCount += len(self.imagePathList)
-        self.processedFileCount = 0
+            self.imageFileCount = len(self.imagePathList)
+        else:
+            self.imageFileCount = 0
+
+        if(self.useCompression):
+            self.preprocessFileCount = self.geoFileCount
+            self.preProcessRequired = True
+        else:
+            self.preprocessFileCount = 0
+
+        self.processedFileCount = 0        
+        self.totalFileCount = self.geoFileCount + self.imageFileCount + self.preprocessFileCount
 
         convertSettings = SequenceConverterSettings()
         convertSettings.modelPaths = self.modelPathList
@@ -169,24 +191,84 @@ class ConverterUI:
         convertSettings.decimatePercentage = self.decimatePercentage
         convertSettings.saveNormals = self.save_normals
         convertSettings.generateNormals = self.generateNormals
+        convertSettings.useCompression = self.useCompression
         convertSettings.mergePoints = self.mergePoints
         convertSettings.mergeDistance = self.mergeDistance
 
-        self.converter.start_conversion(convertSettings, self.single_conversion_finished_cb)
+        self.converter.set_conversion_settings(convertSettings, self.single_conversion_finished_cb)
 
-        self.info_text_set("Converting...")
+        if (self.preProcessRequired):
+            self.info_text_set("Preprocessing models for compression...")
+            self.converter.start_preprocessing()
+
+        else:
+            self.process_models()
+
         self.set_progressbar(0)
         self.isRunning = True
 
+    def process_models(self):
+        self.info_text_set("Starting conversion...")
+        if self.converter.start_conversion() == False:
+            self.error_text_set("Error: Could not start conversion process!")
+            return False
 
     def single_conversion_finished_cb(self, error, errorText):
-        self.advance_progressbar(error, errorText)
+        self.handle_conversion_progress(error, errorText)
 
+    def handle_conversion_progress(self, error, errorText):
+
+        self.progressbarLock.acquire()
+        self.processedFileCount += 1
+
+        # In case we use preprocessing, start the conversion once preprocessing is done
+        if(self.preProcessRequired and self.processedFileCount == self.preprocessFileCount):
+            print("Pre-Processing finished")
+            self.preProcessFinished = True
+
+        if(error):
+            self.error_text_set(errorText)
+            self.cancel_processing_cb()
+            self.set_progressbar(1)
+            self.info_text_set("Error occurred during conversion: ")
+
+        else:
+            if(self.terminationSignal.is_set() == False):
+                self.set_progressbar(self.processedFileCount / self.totalFileCount)
+
+                status = "Converting"
+                if(self.processedFileCount <= self.preprocessFileCount):
+                    status = "Preprocessing"
+
+
+
+                self.info_text_set("Progress: {percentage} % ({mode}) ".format(percentage = str(int((self.processedFileCount / self.totalFileCount) * 100)), mode = status))
+
+            else:
+                self.set_progressbar(0)
+                self.info_text_set("Cancelling, please wait...")
+
+        if(self.processedFileCount == self.totalFileCount):
+            self.conversionFinished = True
+            print("Conversion finished")
+
+        self.progressbarLock.release()
+
+    def finish_conversion(self):
+        self.converter.finish_conversion(not self.terminationSignal.is_set())
+
+        if(self.terminationSignal.is_set()):
+            self.info_text_set("Canceled!")
+        else:
+            self.info_text_set("Finished!")
+        self.set_progressbar(0)
+
+        self.isRunning = False
 
     # --- File Handeling ---
 
     def InitDefaultPaths(self):
-    
+
         # Determine on what platform we are running (macOS or Windows)
         if (sys.platform != "darwin") and (sys.platform != "win32"):
             print("Your platform is currently not supported! The Sequence Converter supports Windows and macOS (partially)")
@@ -211,9 +293,9 @@ class ConverterUI:
 
     def open_file_dialog(self, path):
         Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-        
+
         if(path is None):
-            new_input_path = askdirectory() 
+            new_input_path = askdirectory()
         else:
             new_input_path = askdirectory(initialdir=path, )
 
@@ -238,7 +320,7 @@ class ConverterUI:
 
             self.inputPathValid = True
             self.write_path_string("input", new_input_path)
-            
+
         else:
             self.info_text_clear()
             self.error_text_set(res)
@@ -249,7 +331,7 @@ class ConverterUI:
                 return "Folder does not exist!"
 
             files = os.listdir(input_path)
-            
+
             #Sort the files into model and images
             for file in files:
                 splitted_path = file.split(".")
@@ -257,7 +339,7 @@ class ConverterUI:
 
                 if(file_ending in self.validModelTypes):
                     self.modelPathList.append(file)
-                
+
                 elif(file_ending in self.validImageTypes):
                     self.imagePathList.append(file)
 
@@ -266,7 +348,7 @@ class ConverterUI:
 
             if(len(self.modelPathList) < 1 and len(self.imagePathList) < 1):
                 return "No model/image files found in folder!"
-            
+
             if(len(self.imagePathList) > 1):
                 self.convertToSRGB = self.converter.get_image_gamme_encoded(os.path.join(input_path, self.imagePathList[0]))
                 self.set_SRGB_enabled(self.convertToSRGB)
@@ -274,6 +356,12 @@ class ConverterUI:
             self.human_sort(self.modelPathList)
             self.human_sort(self.imagePathList)
 
+            # Check if the files are already compressed
+            modelPath = os.path.join(input_path, self.modelPathList[0])
+            with open(modelPath, 'rb') as f:
+                text = f.read(200).decode('ascii', errors='ignore')
+                if("half") in text:
+                    return "Sequence is already compressed! Please use the original sequence for conversion."
             return True
 
     def set_proposed_output_files(self, input_path):
@@ -320,19 +408,20 @@ class ConverterUI:
             self.config['Settings']['generateNormals'] = "false"
             self.config['Settings']['mergePoints'] = "false"
             self.config['Settings']['mergeDistance'] = "0.001"
+            self.config['Settings']['useCompression'] = "false"
             self.save_config()
 
         self.config.read(self.configPath)
 
     def read_path_string(self, key):
         return self.config['Paths'][key]
-    
+
     def read_settings_string(self, key):
         return self.config['Settings'][key]
-    
+
     def read_config_bool(self, key):
         return self.config['Settings'].getboolean(key)
-    
+
     def write_path_string(self, key, value):
         self.config['Paths'][key] = value
 
@@ -361,43 +450,6 @@ class ConverterUI:
 
     # --- Main UI ---
 
-    def advance_progressbar(self, error, errorText):
-
-        self.progressbarLock.acquire()
-        self.processedFileCount += 1
-
-        if(error):
-            self.error_text_set(errorText)
-            self.cancel_processing_cb()
-            self.set_progressbar(1)
-            self.info_text_set("Error occurred during conversion: ")
-
-        else:
-            if(self.terminationSignal.is_set() == False):
-                self.set_progressbar(self.processedFileCount / self.totalFileCount)
-                self.info_text_set("Converting: " + str(self.processedFileCount) + " / " + str(self.totalFileCount))
-
-            else:
-                self.set_progressbar(0)
-                self.info_text_set("Cancelling")
-
-        if(self.processedFileCount == self.totalFileCount):
-            self.conversionFinished = True
-            print("Conversion finished")
-
-        self.progressbarLock.release()
-
-    def finish_conversion(self):             
-        self.converter.finish_conversion(not self.terminationSignal.is_set())
-
-        if(self.terminationSignal.is_set()):
-            self.info_text_set("Canceled!")
-        else:
-            self.info_text_set("Finished!")
-        self.set_progressbar(0)
-        
-        self.isRunning = False
-
     def set_progressbar(self, progress):
         dpg.set_value(self.progress_bar_ID, progress)
 
@@ -423,8 +475,8 @@ class ConverterUI:
         dpg.set_value(self.srgb_check_ID, enabled)
 
     def set_viewport_height(self, pointcloud_settings, texture_settings):
-        default_viewport_height = 450
-        pointcloud_settings_height = 70
+        default_viewport_height = 470
+        pointcloud_settings_height = 90
         textures_settings_height = 70
 
         height = default_viewport_height
@@ -447,16 +499,17 @@ class ConverterUI:
         self.generateASTC = self.read_config_bool("ASTC")
         self.decimatePointcloud = self.read_config_bool("decimatePointcloud")
         self.decimatePercentage = int(self.read_settings_string("decimatePercentage"))
+        self.useCompression = self.read_config_bool("useCompression")
 
         dpg.configure_app(manual_callback_management=True)
         dpg.create_viewport(height=500, width=500, title="Geometry Sequence Converter")
         dpg.setup_dearpygui()
-        
+
         with dpg.window(label="Geometry Sequence Converter", tag="main_window", min_size= [500, 500]):
-            
+
             dpg.add_button(label="Select Input Directory", callback=lambda:self.open_input_dir_cb())
             self.text_input_Dir_ID = dpg.add_text(self.inputSequencePath, wrap=450)
-            
+
             dpg.add_spacer(height=40)
 
             dpg.add_button(label="Select Output Directory", callback=lambda:self.open_output_dir_cb())
@@ -466,11 +519,11 @@ class ConverterUI:
 
             dpg.add_text("General settings:")
             self.save_normals_ID = dpg.add_checkbox(label="Save normals", default_value=self.save_normals, callback=self.set_normals_enabled_cb)
-            
+
             dpg.add_spacer(height=5)
 
             with dpg.collapsing_header(label="Pointcloud settings", default_open=False) as header_pcSettings_ID:
-                
+
                 with dpg.group(horizontal=True):
                     self.pointcloud_decimation_ID = dpg.add_checkbox(label="Decimate Pointcloud", default_value=self.decimatePointcloud, callback=self.set_Decimation_enabled_cb)
                     self.decimation_percentage_ID = dpg.add_input_int(label=" %", default_value=self.decimatePercentage, min_value=0, max_value=100, width=80, callback=self.set_Decimation_percentage_cb)
@@ -480,24 +533,25 @@ class ConverterUI:
                     self.merge_distance_ID = dpg.add_input_float(label= " ", default_value=self.mergeDistance , callback=self.set_Merge_Distance_cb, min_value=0, width= 200)
 
                 self.generate_normals_ID = dpg.add_checkbox(label= "Estimate normals", default_value=self.generateNormals, callback=self.set_Generate_Normals_enabled_cb)
-            
+                self.use_compression_ID = dpg.add_checkbox(label= "Use Compression", default_value=self.useCompression, callback=self.set_Use_Compression_cb)
+
             dpg.add_spacer(height=5)
 
             with dpg.collapsing_header(label="Texture settings", default_open=False) as header_textureSettings_ID:
                 dpg.add_checkbox(label="Generate textures for desktop devices (DDS)", default_value=self.generateDDS, callback=self.set_DDS_enabled_cb)
                 dpg.add_checkbox(label="Generate textures mobile devices (ASTC)", default_value=self.generateASTC, callback=self.set_ASTC_enabled_cb)
-                self.srgb_check_ID = dpg.add_checkbox(label="Convert to SRGB profile", default_value=self.convertToSRGB, callback=self.set_SRGB_enabled_cb)            
+                self.srgb_check_ID = dpg.add_checkbox(label="Convert to SRGB profile", default_value=self.convertToSRGB, callback=self.set_SRGB_enabled_cb)
 
             self.text_error_log_ID = dpg.add_text("", color=[255, 0, 0], wrap=450)
             self.text_info_log_ID = dpg.add_text("", color=[255, 255, 255], wrap=450)
-            
+
             self.progress_bar_ID = dpg.add_progress_bar(default_value=0, width=470)
             dpg.add_spacer(height=5)
 
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Start Conversion", callback=lambda:self.start_conversion_cb())
                 dpg.add_button(label="Cancel", callback=lambda:self.cancel_processing_cb())
-                self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")        
+                self.thread_count_ID = dpg.add_input_int(label="Thread count", default_value=8, min_value=0, max_value=64, width=100, tag="threadCount")
 
         dpg.show_viewport()
         dpg.set_primary_window("main_window", True)
@@ -512,19 +566,23 @@ class ConverterUI:
             dpg.render_dearpygui_frame()
             jobs = dpg.get_callback_queue()
             dpg.run_callbacks(jobs)
-            
+
             if(dpg.is_item_left_clicked(header_pcSettings_ID)):
                 pointcloud_header_open = not pointcloud_header_open
                 self.set_viewport_height(pointcloud_header_open, texture_header_open)
-            
+
             if(dpg.is_item_left_clicked(header_textureSettings_ID)):
                 texture_header_open = not texture_header_open
                 self.set_viewport_height(pointcloud_header_open, texture_header_open)
 
+            if(self.preProcessFinished):
+                self.process_models()
+                self.preProcessFinished = False
+
             if(self.conversionFinished):
                 self.finish_conversion()
                 self.conversionFinished = False
-            
+
         # Shutdown threads when they are still running
         self.cancel_processing_cb()
         self.save_config()
