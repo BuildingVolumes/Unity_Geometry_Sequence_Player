@@ -356,6 +356,12 @@ class ConverterUI:
             self.human_sort(self.modelPathList)
             self.human_sort(self.imagePathList)
 
+            # Check if the files are already compressed
+            modelPath = os.path.join(input_path, self.modelPathList[0])
+            with open(modelPath, 'rb') as f:
+                text = f.read(200).decode('ascii', errors='ignore')
+                if("half") in text:
+                    return "Sequence is already compressed! Please use the original sequence for conversion."
             return True
 
     def set_proposed_output_files(self, input_path):
