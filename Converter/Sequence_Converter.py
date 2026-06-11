@@ -95,7 +95,7 @@ class SequenceConverter:
 
         if(self.convertSettings is None):
             return False
-        
+
         modelCount = len(self.convertSettings.modelPaths)
         self.convertSettings.metaData.headerSizes = [None] * modelCount
         self.convertSettings.metaData.verticeCounts = [None] * modelCount
@@ -105,7 +105,7 @@ class SequenceConverter:
             self.process_models()
         if(len(self.convertSettings.imagePaths) > 0 and (self.convertSettings.convertToDDS or self.convertSettings.convertToASTC)):
             self.process_images()
-        
+
         return True
 
     def terminate_conversion(self):
@@ -138,7 +138,7 @@ class SequenceConverter:
     def write_metadata(self):
         self.convertSettings.metaData.write_metaData(self.convertSettings.outputPath)
 
-    def process_models(self):        
+    def process_models(self):
 
         if self.debugMode:
             self.firstEstimation = True
@@ -273,7 +273,7 @@ class SequenceConverter:
             self.convertSettings.hasNormals = True
 
         if(len(normals) > 0 and self.convertSettings.saveNormals):
-            
+
             # Check if there are actual normals inside the array, or if it is just empty
             x = normals[0][0]
             y = normals[0][1]
@@ -384,15 +384,16 @@ class SequenceConverter:
             header += "comment Exported for use in Unity Geometry Streaming Plugin" + "\n"
             header += "element vertex " + str(vertexCount) + "\n"
 
-            propertyText = "property " + "half" if self.convertSettings.useCompression else "float" + " "
+            propertyText = "property " + ("half" if self.convertSettings.useCompression else "float") + " "
 
             header += propertyText + "x" + "\n"
             header += propertyText + "y" + "\n"
             header += propertyText + "z" + "\n"
 
-            header += propertyText + "nx" + "\n"
-            header += propertyText + "ny" + "\n"
-            header += propertyText + "nz" + "\n"
+            if(self.convertSettings.hasNormals):
+                header += propertyText + "nx" + "\n"
+                header += propertyText + "ny" + "\n"
+                header += propertyText + "nz" + "\n"
 
             if(self.convertSettings.isPointcloud == True):
                 header += "property uchar red" + "\n"
@@ -483,7 +484,7 @@ class SequenceConverter:
 
                 if(self.convertSettings.hasUVs == True):
                     if(self.convertSettings.useCompression):
-                        uvs = uvs.astype(dtype=np.float16, casting='same_kind') 
+                        uvs = uvs.astype(dtype=np.float16, casting='same_kind')
 
                     uvsBytes = np.frombuffer(uvs.tobytes(), dtype=np.uint8)
 
